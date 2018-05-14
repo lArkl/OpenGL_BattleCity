@@ -3,11 +3,11 @@
 const int maxAmmo = 5;
 	
 class Object{
-    public:
-    float posX, posZ;
-    int direction;
+	public:
+	float posX, posZ;
+	int direction;
 	bool alive;
-    float radius;
+	float radius;
 	Object();
 	Object(float, float, int);
     //virtual void move();
@@ -18,8 +18,10 @@ class Object{
 class Bullet:public Object
 {
 	public:
+	Object *owner;
 	Bullet();
 	Bullet(float,float,int);
+	bool destroyObject(Object*);
 	void move();
 	bool impactOn();
 	void display();

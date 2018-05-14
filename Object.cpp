@@ -14,8 +14,8 @@ Object::Object()
 }
 
 Object::Object(float x,float z, int dir){
-    posX = x;
-    posZ = z;
+	posX = x;
+	posZ = z;
 	direction = dir;
 	alive = false;//Tells if it's recently created
 }
@@ -23,6 +23,7 @@ Object::Object(float x,float z, int dir){
 void Object::display(){
 	//std::cout<<posZ<<std::endl;
 	//glColor3f(.0,.0,.0);
+	//if(Object)
 	radius = 4;
 	glBegin(GL_TRIANGLE_STRIP);// wasted block :'v
 		glVertex3f(posX-radius,2.0,posZ-radius);
@@ -45,13 +46,20 @@ Bullet::Bullet():Object(){}
 
 Bullet::Bullet(float x, float z, int dir):Object(x,z,dir)
 {
-	const int step = 1;
+	radius = 1;
+	const int step = 4;
 	switch (dir) {
 		case 0: posZ = z + step;break;
 		case 1: posX = x + step;break;
 		case 2: posZ = z - step;break;
 		case 3: posX = x - step;break;
 	}
+}
+
+bool Bullet::destroyObject(Object *obj){
+	alive = false;
+	obj->alive = false;
+	return true;
 }
 
 bool Bullet::impactOn()
@@ -61,13 +69,32 @@ bool Bullet::impactOn()
 		alive = false;
 		return true;
 	}
-	
+	/*
 	for(int i=0; i< SceneObjects.size() ;i++){
 		float x = SceneObjects[i]->posX;
 		float r = SceneObjects[i]->radius;
 
 	}
 	return false;
+	*/
+	
+	for(int i=0; i< SceneObjects.size(); i++){
+		Object *obj = SceneObjects[i];
+		//std::cout<<this<<" "<<obj <<std::endl;
+		if(obj == this|| owner == obj) continue;
+		float notDistance = (direction % 2 ==0)? posX - obj->posX: posZ-obj->posZ;
+		float sumRadius = radius + obj->radius;
+		if(notDistance*notDistance > sumRadius) continue; 
+		switch(direction){
+			case 0: if(posZ + sumRadius > obj->posZ) return destroyObject(obj); break;
+			case 1: if(posX + sumRadius > obj->posX) return destroyObject(obj); break;
+			case 2: if(posZ < obj->posZ + sumRadius) return destroyObject(obj); break;
+			case 3: if(posX < obj->posX + sumRadius) return destroyObject(obj); break;
+		}
+	}
+	return false;
+
+	
 }
 
 Bullet::~Bullet(){}
@@ -85,11 +112,11 @@ void Bullet::move(){
 }
 
 void Bullet::display(){
-			//glTranslatef(player.ammo[i]->posX,.0,player.ammo[i]->posZ);
-			//glRotatef((player.ammo[i]->direction-1)*90,0,1.0,0);
+	//glTranslatef(player.ammo[i]->posX,.0,player.ammo[i]->posZ);
+	//glRotatef((player.ammo[i]->direction-1)*90,0,1.0,0);
 	glVertex3f(posX,2.8,posZ);
 	glRotatef((direction-1)*90,0,1.0,0);
-				//glVertex3f(.0,2.8,.0);
+	//glVertex3f(.0,2.8,.0);
 }
 
 Tank::Tank(){
@@ -120,36 +147,26 @@ void Tank::move(int dir){
 }
 
 bool Tank::limit(int step){
-	const float Limit = 60;
-	/*
-	if(posX > Limit || posX < -Limit || posZ > Limit || posZ <-Limit){
-		return true;
-	}*/
+	const float Limit = 60; //Tanks outside limit
 	switch(direction){
 		case 0: if(posZ + step > Limit) return true; break;
 		case 1: if(posX + step > Limit) return true; break;
-		case 2: if(posZ - step > Limit) return true; break;
-		case 3: if(posX - step > Limit) return true; break;
+		case 2: if(posZ - step < -Limit) return true; break;
+		case 3: if(posX - step < -Limit) return true; break;
 	}
-
-
-
-	float tAxisDif, oAxisDif;
 	for(int i=0; i< SceneObjects.size(); i++){
 		Object *obj = SceneObjects[i];
 		//std::cout<<this<<" "<<obj <<std::endl;
 		if(obj == this) continue;
-		//float dd = (direction % 2 ==0)? posX - obj->posX: posZ-obj->posZ; 
+		float notDistance = (direction % 2 ==0)? posX - obj->posX: posZ-obj->posZ;
+		float sumRadius = radius + obj->radius;
+		if(notDistance*notDistance > sumRadius) continue; 
+		
 		switch(direction){
-			case 0: tAxisDif = posZ + step - obj->posZ; oAxisDif = posX - obj->posX; break;
-			case 1: tAxisDif = posX + step - obj->posX; oAxisDif = posZ - obj->posZ; break;
-			case 2: tAxisDif = posZ - step - obj->posZ; oAxisDif = posX - obj->posX; break;
-			case 3: tAxisDif = posX - step - obj->posX; oAxisDif = posZ - obj->posZ; break;
-		}
-		float sumR = radius + obj->radius;
-		if(tAxisDif*tAxisDif + oAxisDif*oAxisDif < sumR*sumR){// collision in x axis
-			std::cout<< tAxisDif <<" "<< oAxisDif <<std::endl;
-			return true;
+			case 0: if(posZ + step + sumRadius > obj->posZ) return true; break;
+			case 1: if(posX + step + sumRadius > obj->posX) return true; break;
+			case 2: if(posZ - step < obj->posZ + sumRadius) return true; break;
+			case 3: if(posX - step < obj->posX + sumRadius) return true; break;
 		}
 	}
 	return false;
@@ -195,6 +212,7 @@ void Tank::shoot(){
 	if (!ammo[i]->alive) {
 		delete ammo[i];
 		ammo[i] = new Bullet(posX,posZ,direction);
+		ammo[i]->owner = this;
 		ammo[i]->alive = true;
 	}
 }	

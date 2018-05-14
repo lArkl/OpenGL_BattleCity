@@ -1,14 +1,17 @@
 #include "data.h"
 
+const int maxAmmo = 5;
+	
 class Object{
     public:
     float posX, posZ;
     int direction;
 	bool alive;
-    Object();
+    float radius;
+	Object();
 	Object(float, float, int);
     //virtual void move();
-    void display();
+    virtual void display();
 	~Object();
 };
 
@@ -20,12 +23,9 @@ class Bullet:public Object
 	void move();
 	bool impactOn();
 	void display();
-	//bool ImpactOn(Mapa,Jugador*);
 	~Bullet();
 };
 
-const int maxAmmo = 5;
-	
 class Tank:public Object{
 	public:
 	float iniX,iniZ;
@@ -38,6 +38,7 @@ class Tank:public Object{
 	//void move();
 	//void MoverIA(Mapa, Nodo *, clock_t);
 	//void MoverIA2(Mapa, int, Nodo *, clock_t,Jugador*);	
+	bool limit(int);
 	void move(int);
 	void shoot();
 	//void AttackIA(Mapa, Nodo *);
@@ -52,4 +53,4 @@ class Tank:public Object{
 	~Tank();
 };
 
-extern Tank player;
+//extern Tank *player;

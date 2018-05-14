@@ -29,9 +29,14 @@ void Player::restart(){//????
 void Level::create(int blocks, int powers){
     const int numEnemies = 2;
     Tank enemies[numEnemies];
+    int cont=0;
     for(int i=0; i<numEnemies; i++){
         SceneObjects.push_back(&enemies[i]);
-        for(int j=0; j < maxAmmo; j++)
+        cont++;
+        for(int j=0; j < maxAmmo; j++){
             SceneObjects.push_back(enemies[i].ammo[j]);
+            cont++;
+        }
     }
+    totalObjects = cont;
 }

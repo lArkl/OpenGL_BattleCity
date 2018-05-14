@@ -11,33 +11,6 @@
 
 using namespace std;
 
-//Llamada global para no hacer lectura constante	
-//string path1 = "Models/Knuckles/Knuckles.obj";
-//string path = "sample.txt";
-//string path1 = "Models/Caral/caral_piramide.obj";
-//string path1 = "Models/Tank/BaseTank.obj";
-//string path1 = "Models/Tank2/Tank.obj";
-//Model model1 = readFile(path1);
-//Model model2 = readFile(path2);
-//Model *models[2] = {model1,model2};
-
-/* -- GLOBAL VARIABLES --------------------------------------------------- */
-
-/* -- LOCAL VARIABLES ---------------------------------------------------- */
-
-
-/* ----------------------------------------------------------------------- 
-
-/* ----------------------------------------------------------------------- */
-/* Function    : void myInit( void )
- *
- * Description : Initialize OpenGL and the window where things will be
- *               drawn.
- *
- * Parameters  : void
- *
- * Returns     : void
- */
 
 unsigned int texture;
 void LoadTextures(){
@@ -100,9 +73,14 @@ void LoadTextures(){
 	//return texture;
 }
 
-//vector<SceneObject> SceneObjects;
-Tank player(0,0,0);
-
+vector<Object*> SceneObjects;
+Tank *player;
+Tank *enemy1;
+Object *block1;
+/*
+Tank enemy1(50,0,50);
+Tank enemy2(-50,0,50);
+*/
 void Init( void )  {
     //LoadTextures();
 	glEnable(GL_TEXTURE_2D);
@@ -121,8 +99,22 @@ void Init( void )  {
     glLoadIdentity();
 	//gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0);
 	glMatrixMode(GL_MODELVIEW);
+	//Llamada global para no hacer lectura constante	
+	//string path1 = "Models/Knuckles/Knuckles.obj";
+	//string path = "sample.txt";
+	//string path1 = "Models/Caral/caral_piramide.obj";
+	//string path1 = "Models/Tank/BaseTank.obj";
+	//string path1 = "Models/Tank2/Tank.obj";
 	std::string path1 = "Models/Tank/BaseTank.obj";
-	player.model = readFile(path1);
+	Model *tankModel = readFile(path1);
+	player = new Tank(0,0,0);
+	enemy1 = new Tank(40,30,2);
+	player->model = tankModel;
+	enemy1->model = tankModel;
+	block1 = new Object(0,40,0);
+	SceneObjects.push_back(player);
+	SceneObjects.push_back(block1);
+	SceneObjects.push_back(enemy1);
 }
 
 /* ----------------------------------------------------------------------- */
@@ -170,16 +162,15 @@ void plotPoints(){//,Model model2){
 	glBindTexture(GL_TEXTURE_2D, texture);
 	//glScalef(0.1,0.1,0.1);
 	glColor3f(.0, 0.8, .1);
-	glPushMatrix();
-		glTranslatef(player.posX,.0,player.posZ);
-		glRotatef((player.direction-1)*90,0,1.0,0);
-		player.display();
-	glPopMatrix();
+	player->display();
+	glColor3f(.8, 0.0, .1);
+	enemy1->display();
+	block1->display();
 	//DrawBullets
 	glBegin(GL_POINTS);
 		for(int i=0;i<5;i++){
-			if(player.ammo[i]->alive==false) continue;
-			player.ammo[i]->display();
+			if(player->ammo[i]->alive==false) continue;
+			player->ammo[i]->display();
 		}
 	glEnd();
 	
@@ -280,8 +271,9 @@ void Display( void)  {
 
 void update(int value) {
 	for(int i=0;i<5;i++){
-		if(player.ammo[i]->alive)
-			player.ammo[i]->move();
+		if(player->ammo[i]->alive){
+			player->ammo[i]->move();
+		}
 	}
 	glutPostRedisplay();
 	glutTimerFunc(25, update, 0);

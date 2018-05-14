@@ -17,6 +17,7 @@ class Player{
 
 class Level{
     public:
+    int totalObjects;
     std::vector<Object*> SceneObjects; //Objects in scene
     void create(int,int);
 };

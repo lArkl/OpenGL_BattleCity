@@ -1,9 +1,9 @@
-#include "Object.h"
+#include "Level.h"
 #include <GL/glut.h>
 #include <vector>
 #include<iostream>
 
-extern std::vector<Object*> SceneObjects;
+extern Level *level1;
 
 Object::Object()
 {
@@ -25,6 +25,7 @@ void Object::display(){
 	//glColor3f(.0,.0,.0);
 	//if(Object)
 	radius = 4;
+	/*
 	glBegin(GL_TRIANGLE_STRIP);// wasted block :'v
 		glVertex3f(posX-radius,2.0,posZ-radius);
 		glVertex3f(posX-radius,4.0,posZ-radius);	
@@ -37,6 +38,42 @@ void Object::display(){
 		glVertex3f(posX+radius,4.0,posZ-radius);
 		glVertex3f(posX-radius,4.0,posZ-radius);	
 	glEnd();
+	*/
+	int size = radius/2;
+	glPushMatrix();
+	glTranslatef(0,size,0);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
+		glTexCoord2f(1, 1); glVertex3f( size,  size, -size);
+		glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
+
+		glTexCoord2f(0, 0); glVertex3f(-size, -size, size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size, size);
+		glTexCoord2f(1, 1); glVertex3f( size,  size, size);
+		glTexCoord2f(1, 0); glVertex3f( size, -size, size);
+
+		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
+		glTexCoord2f(1, 1); glVertex3f(-size,  size,  size);
+		glTexCoord2f(1, 0); glVertex3f(-size, -size,  size);
+
+		glTexCoord2f(0, 0); glVertex3f(size, -size, -size);
+		glTexCoord2f(0, 1); glVertex3f(size,  size, -size);
+		glTexCoord2f(1, 1); glVertex3f(size,  size,  size);
+		glTexCoord2f(1, 0); glVertex3f(size, -size,  size);
+
+		glTexCoord2f(0, 1); glVertex3f(-size, -size,  size);
+		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+		glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
+		glTexCoord2f(1, 1); glVertex3f( size, -size,  size);
+
+		glTexCoord2f(0, 1); glVertex3f(-size, size,  size);
+		glTexCoord2f(0, 0); glVertex3f(-size, size, -size);
+		glTexCoord2f(1, 0); glVertex3f( size, size, -size);
+		glTexCoord2f(1, 1); glVertex3f( size, size,  size);
+	glEnd();
+	glPopMatrix();
 }
 
 Object::~Object(){};
@@ -78,8 +115,8 @@ bool Bullet::impactOn()
 	return false;
 	*/
 	
-	for(int i=0; i< SceneObjects.size(); i++){
-		Object *obj = SceneObjects[i];
+	for(int i=0; i< level1->SceneObjects.size(); i++){
+		Object *obj = level1->SceneObjects[i];
 		//std::cout<<this<<" "<<obj <<std::endl;
 		if(obj == this|| owner == obj) continue;
 		float notDistance = (direction % 2 ==0)? posX - obj->posX: posZ-obj->posZ;
@@ -154,8 +191,8 @@ bool Tank::limit(int step){
 		case 2: if(posZ - step < -Limit) return true; break;
 		case 3: if(posX - step < -Limit) return true; break;
 	}
-	for(int i=0; i< SceneObjects.size(); i++){
-		Object *obj = SceneObjects[i];
+	for(int i=0; i< level1->SceneObjects.size(); i++){
+		Object *obj = level1->SceneObjects[i];
 		//std::cout<<this<<" "<<obj <<std::endl;
 		if(obj == this) continue;
 		float notDistance = (direction % 2 ==0)? posX - obj->posX: posZ-obj->posZ;
@@ -234,8 +271,6 @@ void Tank::respawn() {
 	posX = iniX;
 	posZ = iniZ;
 	reloadBullets();
-		//Imprimir(direccion);
-	//}
 }
 
 Tank::~Tank(){}

@@ -1,9 +1,9 @@
 #include <GL/glut.h>
 //#include <iostream>
-#include "Object.h"
+#include "Level.h"
 #include <string>
 
-extern Tank *player;
+extern Level *level1;
 
 void keyboard(unsigned char key, int x, int y){
 	//std::cout<<key<<std::endl;
@@ -19,7 +19,7 @@ void keyboard(unsigned char key, int x, int y){
 		else glEnable(GL_CULL_FACE);
         break;
 	case 's':
-		player->move(0);
+		level1->player->move(0);
         //zz -= 0.1;
         glutPostRedisplay();
         //glTranslatef(0.0,-1.0,0.0);
@@ -28,27 +28,27 @@ void keyboard(unsigned char key, int x, int y){
         break;
 	case 'w':
 		//zz += 0.1;
-        player->move(2);
+        level1->player->move(2);
         glutPostRedisplay();
         //glTranslatef(0.0,1.0,0.0);
         //glRotatef(1.0, -1., 0., 0.);
         break;
 	case 'a':
 		//xx -= 0.1 ;
-        player->move(3);
+        level1->player->move(3);
         glutPostRedisplay();
         //glTranslatef(-1.0,0.0,0.0);
         //glRotatef(1.0, 0.0, 1.0, 0.);
         break;
 	case 'd':
 		//xx += 0.1;
-        player->move(1);
+        level1->player->move(1);
         glutPostRedisplay();
         //glTranslatef(1.0,0.0,0.0);
         //glRotatef(1.0, 0.0, -1.0, 0.);
         break;
     case 'v':
-        player->shoot();break;
+        level1->player->shoot();break;
 	case 't':
 		//glTranslatef(0.0,0.0,-1.0);
         //glTranslatef(-0.01, -0.00,0.01);

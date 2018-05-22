@@ -7,7 +7,8 @@
 #include <iostream>
 //#include "data.h"
 #include "stb_image.h"
-#include "Object.h"
+//#include "Object.h"
+#include "Level.h"
 
 using namespace std;
 
@@ -73,14 +74,15 @@ void LoadTextures(){
 	//return texture;
 }
 
+/*
 vector<Object*> SceneObjects;
 Tank *player;
 Tank *enemy1;
 Object *block1;
-/*
-Tank enemy1(50,0,50);
-Tank enemy2(-50,0,50);
 */
+
+Level *level1;
+
 void Init( void )  {
     //LoadTextures();
 	glEnable(GL_TEXTURE_2D);
@@ -105,6 +107,7 @@ void Init( void )  {
 	//string path1 = "Models/Caral/caral_piramide.obj";
 	//string path1 = "Models/Tank/BaseTank.obj";
 	//string path1 = "Models/Tank2/Tank.obj";
+	/* Declaracion de objetos en escenario
 	std::string path1 = "Models/Tank/BaseTank.obj";
 	Model *tankModel = readFile(path1);
 	player = new Tank(0,0,0);
@@ -115,6 +118,9 @@ void Init( void )  {
 	SceneObjects.push_back(player);
 	SceneObjects.push_back(block1);
 	SceneObjects.push_back(enemy1);
+	*/
+	level1 = new Level();
+	level1->create(2);
 }
 
 /* ----------------------------------------------------------------------- */
@@ -134,7 +140,7 @@ float view_rotx=0.0, view_roty=0.0;//, view_rotz=0.0;
 //extern Tank player;
 
 //Tank player(0,0,0);
-
+/*
 void plotPoints(){//,Model model2){
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glPointSize(4.0);
@@ -182,7 +188,7 @@ void plotPoints(){//,Model model2){
 	glutSwapBuffers();
 	//glFlush();
 }
-
+*/
 
 void mousefunction(int button, int state, int x, int y){
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
@@ -215,17 +221,6 @@ void handleResize(int w, int h) {
 	//glLoadIdentity();
 }
 
-void displayText( float x, float y, float r, float g, float b ) {
-	
-	string name = "Attack";
-    
-	glColor3f( r, g, b );
-	glRasterPos2f( x, y );
-	for( int i = 0; i < name.length(); i++ ) {
-		glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_24, name[i] );
-	}
-}
-   
 void special(int key, int x, int y){
     switch(key){
     	case GLUT_KEY_UP: view_rotx += 5.0; break;
@@ -235,21 +230,6 @@ void special(int key, int x, int y){
     }
     glutPostRedisplay();
 }
-/* 
-Crear texto
-
-void initText2D(const char * texturePath);
-void printText2D(const char * text, int x, int y, int size);
-void cleanupText2D();
-std::vector<glm::vec2> vertices;
-std::vector<glm::vec2> UVs;
-*/
-
-//https://github.com/sprintr/opengl-examples/blob/master/OpenGL-Menu.cpp
-
-
-
-
 
 /* ----------------------------------------------------------------------- */
 /* Function    : void myDisplay( void )
@@ -265,16 +245,19 @@ std::vector<glm::vec2> UVs;
 void Display( void)  {
 	glClear( GL_COLOR_BUFFER_BIT );
 	//ifstream infile("Knuckle.obj");
-	plotPoints();//,model2);
+	//plotPoints();//,model2);
+	level1->plotLevel();
 //	plotPoints(model2);
 }
 
 void update(int value) {
+	
 	for(int i=0;i<5;i++){
-		if(player->ammo[i]->alive){
-			player->ammo[i]->move();
+		if(level1->player->ammo[i]->alive){
+			level1->player->ammo[i]->move();
 		}
 	}
+	
 	glutPostRedisplay();
 	glutTimerFunc(25, update, 0);
 }
@@ -302,7 +285,6 @@ int main( int argc, char *argv[] )  {
     
 	//glutKeyboardFunc(Key_Released);
 	glutMouseFunc(mousefunction);
-	displayText(50,100, 0.85f,0.75f,0.0f);
 	
 	glutTimerFunc(25, update, 0); //Add a timer
 	// Ahora que tenemos todo definido, el loop  que responde  a eventos.

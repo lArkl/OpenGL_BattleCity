@@ -41,7 +41,7 @@ void Object::display(){
 	*/
 	int size = radius/2;
 	glPushMatrix();
-	glTranslatef(0,size,0);
+	glTranslatef(posX,size,posZ);
 	glBegin(GL_QUADS);
 		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
 		glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
@@ -62,12 +62,12 @@ void Object::display(){
 		glTexCoord2f(0, 1); glVertex3f(size,  size, -size);
 		glTexCoord2f(1, 1); glVertex3f(size,  size,  size);
 		glTexCoord2f(1, 0); glVertex3f(size, -size,  size);
-
+		/*
 		glTexCoord2f(0, 1); glVertex3f(-size, -size,  size);
 		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
 		glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
 		glTexCoord2f(1, 1); glVertex3f( size, -size,  size);
-
+		*/
 		glTexCoord2f(0, 1); glVertex3f(-size, size,  size);
 		glTexCoord2f(0, 0); glVertex3f(-size, size, -size);
 		glTexCoord2f(1, 0); glVertex3f( size, size, -size);
@@ -92,6 +92,8 @@ Bullet::Bullet(float x, float z, int dir):Object(x,z,dir)
 		case 3: posX = x - step;break;
 	}
 }
+
+Bullet::~Bullet(){}
 
 bool Bullet::destroyObject(Object *obj){
 	alive = false;
@@ -118,7 +120,7 @@ bool Bullet::impactOn()
 	for(int i=0; i< level1->SceneObjects.size(); i++){
 		Object *obj = level1->SceneObjects[i];
 		//std::cout<<this<<" "<<obj <<std::endl;
-		if(obj == this|| owner == obj) continue;
+		if(obj == this || owner == obj) continue;
 		float notDistance = (direction % 2 ==0)? posX - obj->posX: posZ-obj->posZ;
 		float sumRadius = radius + obj->radius;
 		if(notDistance*notDistance > sumRadius) continue; 
@@ -133,8 +135,6 @@ bool Bullet::impactOn()
 
 	
 }
-
-Bullet::~Bullet(){}
 
 void Bullet::move(){
 	const float step = 1.2;
@@ -273,4 +273,7 @@ void Tank::respawn() {
 	reloadBullets();
 }
 
-Tank::~Tank(){}
+Tank::~Tank(){
+	for(int i=0; i<maxAmmo; i++)
+        if(ammo[i]!=NULL) delete ammo[i];
+}

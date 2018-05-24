@@ -18,6 +18,8 @@ Player::Player(string newname){
     lives = 5;
 }
 
+Player::~Player(){}
+
 void Player::update(){
     //update players info at screen
 }
@@ -37,17 +39,30 @@ Level::Level(){
 Level::Level(int nBlocks, int nEnemies){
      numBlocks = nBlocks;
      numEnemies = nEnemies;
+     enemies = new Tank*;
+     blocks = new Object*;
+}
+
+Level::~Level(){
+    for(int i=0;i<numEnemies;i++)
+        delete enemies[i];
+    delete enemies;
+    for(int i=0;i<numBlocks;i++)
+        delete blocks[i];
+    delete blocks;
+    delete player->model;
+    delete player;
 }
 
 void Level::create(int powers){
     //numEnemies = 2;
     //Tank *enemies[numEnemies];
-    int cont=0;
+    int cont = 0;
     std::string path1 = "Models/Tank/BaseTank.obj";
 	Model *tankModel = readFile(path1);
 	
     for(int i=0; i < numEnemies; i++){
-        int pos = i%2==1?-1:1;
+        int pos = i==1?-1:1;
         enemies[i] = new Tank(pos*40,30,2);
         enemies[i]->model = tankModel;
         SceneObjects.push_back(enemies[i]);
@@ -62,9 +77,10 @@ void Level::create(int powers){
     //numBlocks = nBlocks;
     //Object *blocks[nBlocks];
     for(int i=0;i < numBlocks; i++){
-        int a = i>2?1:-1;
+        int a = i>1?1:-1;
         int b = i%2?1:-1;
-        blocks[i] = new Object(a*20,0,b*20);
+
+        blocks[i] = new Object(a*20,b*20,0);
         SceneObjects.push_back(blocks[i]);
         cont++;
     }
@@ -123,3 +139,4 @@ void Level::plotLevel(){
 	glPopMatrix();
 	glutSwapBuffers();
 }
+

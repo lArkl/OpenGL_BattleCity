@@ -214,7 +214,7 @@ void handleResize(int w, int h) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	//gluOrtho2D( 0.0, 640.0, 0.0, 480.0 );
-	gluPerspective(45.0, (double)w / (double)h, 0.1, 180.0);
+	gluPerspective(45.0, (double)w / (double)h, 0.1, 220.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(0.0, 170.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, -1.0);
@@ -289,6 +289,7 @@ int main( int argc, char *argv[] )  {
 	glutTimerFunc(25, update, 0); //Add a timer
 	// Ahora que tenemos todo definido, el loop  que responde  a eventos.
 	glutMainLoop( );
+	delete level1;
 }
 
 /* ----------------------------------------------------------------------- */

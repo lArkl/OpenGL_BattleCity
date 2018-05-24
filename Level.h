@@ -13,6 +13,7 @@ class Player{
     Player(std::string);
     void restart();
     void update();
+    ~Player();
 };
 
 class Level{
@@ -28,4 +29,5 @@ class Level{
     Level(int , int );
     void create(int);
     void plotLevel();
+    ~Level();
 };

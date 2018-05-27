@@ -90,13 +90,13 @@ void Init( void )  {
     gluOrtho2D( 0.0, 640.0, 0.0, 480.0 );
 	*/
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClearDepth(1.0);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_DEPTH_TEST);
-    glShadeModel(GL_SMOOTH);
+	glClearDepth(1.0);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	glShadeModel(GL_SMOOTH);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 	//gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0);
 	glMatrixMode(GL_MODELVIEW);
 	//Llamada global para no hacer lectura constante	
@@ -111,6 +111,7 @@ void Init( void )  {
 	enemy1 = new Tank(40,30,2);
 	player->model = tankModel;
 	enemy1->model = tankModel;
+	//cout<<player->alive<<endl;
 	block1 = new Object(0,40,0);
 	SceneObjects.push_back(player);
 	SceneObjects.push_back(block1);
@@ -147,7 +148,7 @@ void plotPoints(){//,Model model2){
 	glRotatef(view_roty, 0.0, 1.0, 0.0);
 	//glRotatef(view_rotz, 0.0, 0.0, 1.0);
     
-    glPushMatrix();
+	glPushMatrix();
 	// Base
 	glColor3f(.8, 0.8, .8);
 	//4.0 for model base, 20 for scenario
@@ -162,15 +163,17 @@ void plotPoints(){//,Model model2){
 	glBindTexture(GL_TEXTURE_2D, texture);
 	//glScalef(0.1,0.1,0.1);
 	glColor3f(.0, 0.8, .1);
-	player->display();
+	if(player->state==1) player->display();
+	
 	glColor3f(.8, 0.0, .1);
-	enemy1->display();
-	block1->display();
+	if(enemy1->state==1) enemy1->display();
+	
+	if(block1->state==1) block1->display();
 	//DrawBullets
 	glBegin(GL_POINTS);
-		for(int i=0;i<5;i++){
-			if(player->ammo[i]->alive==false) continue;
-			player->ammo[i]->display();
+		for(int i=0;i<maxAmmo;i++){
+			if(player->ammo[i]->state!=-1)
+				player->ammo[i]->display();
 		}
 	glEnd();
 	
@@ -191,47 +194,24 @@ void mousefunction(int button, int state, int x, int y){
     }
 }
 
-void reshape(int width, int height){
-	int x = width<height? width: height;
-	glViewport(0, 0, x, x);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	//gluPerspective(60.0, 1, 1.0, 128.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	//gluLookAt(0.0, 2.0, 1.5, 0.0, -5.0, 0.2, 0.0, 1.0, 0.0);
-	//gluLookAt(0.0, 2.0, 2.0, 0.0, 1.0, 0.0, 0.0, -1.0, -1.0);
-}
-
 void handleResize(int w, int h) {
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	//gluOrtho2D( 0.0, 640.0, 0.0, 480.0 );
-	gluPerspective(45.0, (double)w / (double)h, 0.1, 180.0);
+	gluPerspective(45.0, (double)w / (double)h, 0.1, 220.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(0.0, 170.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, -1.0);
 	//glLoadIdentity();
 }
-
-void displayText( float x, float y, float r, float g, float b ) {
-	
-	string name = "Attack";
-    
-	glColor3f( r, g, b );
-	glRasterPos2f( x, y );
-	for( int i = 0; i < name.length(); i++ ) {
-		glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_24, name[i] );
-	}
-}
-   
+  
 void special(int key, int x, int y){
     switch(key){
-    	case GLUT_KEY_UP: view_rotx += 5.0; break;
-    	case GLUT_KEY_DOWN: view_rotx -= 5.0; break;
-    	case GLUT_KEY_LEFT: view_roty += 5.0; break;
-    	case GLUT_KEY_RIGHT: view_roty -= 5.0;break;
+    	case GLUT_KEY_UP: view_rotx += 3.0; break;
+    	case GLUT_KEY_DOWN: view_rotx -= 3.0; break;
+    	case GLUT_KEY_LEFT: view_roty += 3.0; break;
+    	case GLUT_KEY_RIGHT: view_roty -= 3.0;break;
     }
     glutPostRedisplay();
 }
@@ -270,8 +250,9 @@ void Display( void)  {
 }
 
 void update(int value) {
-	for(int i=0;i<5;i++){
-		if(player->ammo[i]->alive){
+	for(int i=0;i<maxAmmo;i++){
+		//cout<<"shot "<<i<<" "<<player->ammo[i]->state<< endl;
+		if(player->ammo[i]->state==1){
 			player->ammo[i]->move();
 		}
 	}
@@ -289,7 +270,7 @@ int main( int argc, char *argv[] )  {
 	// Definir la posicion de la ventanaen pixeles de la pantalla.
 	glutInitWindowPosition( 100, 150 );
 	// Crear la ventana.
-	glutCreateWindow( "Tanks" );
+	glutCreateWindow( "Battle City - OpenGL" );
 	// Definir la funcion de callback que usaremos para dibujar algo.
 
 	glutDisplayFunc( Display );
@@ -302,7 +283,6 @@ int main( int argc, char *argv[] )  {
     
 	//glutKeyboardFunc(Key_Released);
 	glutMouseFunc(mousefunction);
-	displayText(50,100, 0.85f,0.75f,0.0f);
 	
 	glutTimerFunc(25, update, 0); //Add a timer
 	// Ahora que tenemos todo definido, el loop  que responde  a eventos.

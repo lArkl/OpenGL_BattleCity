@@ -6,7 +6,7 @@ class Object{
 	public:
 	float posX, posZ;
 	int direction;
-	bool alive;
+	int state;
 	float radius;
 	Object();
 	Object(float, float, int);
@@ -19,6 +19,7 @@ class Bullet:public Object
 {
 	public:
 	Object *owner;
+	bool shot;
 	Bullet();
 	Bullet(float,float,int);
 	bool destroyObject(Object*);
@@ -40,7 +41,7 @@ class Tank:public Object{
 	//void move();
 	//void MoverIA(Mapa, Nodo *, clock_t);
 	//void MoverIA2(Mapa, int, Nodo *, clock_t,Jugador*);	
-	bool limit(int);
+	bool limit(float);
 	void move(int);
 	void shoot();
 	//void AttackIA(Mapa, Nodo *);

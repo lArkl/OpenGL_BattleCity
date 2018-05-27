@@ -1,7 +1,10 @@
 #include "Object.h"
 #include <GL/glut.h>
 #include <vector>
-#include<iostream>
+#include <cmath>
+#include <iostream>
+
+using namespace std;
 
 extern std::vector<Object*> SceneObjects;
 
@@ -10,39 +13,57 @@ Object::Object()
 	posX = 0.0;
 	posZ = 0.0;
 	direction = 0;
-	alive = false;
+	state = 1;
 }
 
 Object::Object(float x,float z, int dir){
 	posX = x;
 	posZ = z;
 	direction = dir;
-	alive = false;//Tells if it's recently created
+	state = 1;//Tells if it's recently created
 }
 
 void Object::display(){
-	//std::cout<<posZ<<std::endl;
-	//glColor3f(.0,.0,.0);
-	//if(Object)
 	radius = 4;
-	glBegin(GL_TRIANGLE_STRIP);// wasted block :'v
-		glVertex3f(posX-radius,2.0,posZ-radius);
-		glVertex3f(posX-radius,4.0,posZ-radius);	
-		glVertex3f(posX+radius,2.0,posZ-radius);
-		glVertex3f(posX+radius,4.0,posZ-radius);
-		glVertex3f(posX+radius,0.0,posZ+radius);
-		glVertex3f(posX+radius,4.0,posZ+radius);
-		glVertex3f(posX-radius,4.0,posZ+radius);
-		glVertex3f(posX-radius,4.0,posZ+radius);
-		glVertex3f(posX+radius,4.0,posZ-radius);
-		glVertex3f(posX-radius,4.0,posZ-radius);	
+	int size = radius;
+	glPushMatrix();
+	glTranslatef(posX,size,posZ);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
+		glTexCoord2f(1, 1); glVertex3f( size,  size, -size);
+		glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
+
+		glTexCoord2f(0, 0); glVertex3f(-size, -size, size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size, size);
+		glTexCoord2f(1, 1); glVertex3f( size,  size, size);
+		glTexCoord2f(1, 0); glVertex3f( size, -size, size);
+
+		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
+		glTexCoord2f(1, 1); glVertex3f(-size,  size,  size);
+		glTexCoord2f(1, 0); glVertex3f(-size, -size,  size);
+
+		glTexCoord2f(0, 0); glVertex3f(size, -size, -size);
+		glTexCoord2f(0, 1); glVertex3f(size,  size, -size);
+		glTexCoord2f(1, 1); glVertex3f(size,  size,  size);
+		glTexCoord2f(1, 0); glVertex3f(size, -size,  size);
+		
+		glTexCoord2f(0, 1); glVertex3f(-size, size,  size);
+		glTexCoord2f(0, 0); glVertex3f(-size, size, -size);
+		glTexCoord2f(1, 0); glVertex3f( size, size, -size);
+		glTexCoord2f(1, 1); glVertex3f( size, size,  size);
 	glEnd();
+	glPopMatrix();
 }
 
 Object::~Object(){};
 
 
-Bullet::Bullet():Object(){}
+Bullet::Bullet():Object(){
+	state = -1;;//Tells if it's recently created
+	radius = 1;
+}
 
 Bullet::Bullet(float x, float z, int dir):Object(x,z,dir)
 {
@@ -57,8 +78,10 @@ Bullet::Bullet(float x, float z, int dir):Object(x,z,dir)
 }
 
 bool Bullet::destroyObject(Object *obj){
-	alive = false;
-	obj->alive = false;
+	state = -1;
+	obj->state = 0;
+	cout<<posX<<" "<<posZ<<" "<<endl;
+	cout<<obj->posX<<" "<<obj->posZ<<" "<<endl;
 	return true;
 }
 
@@ -66,35 +89,28 @@ bool Bullet::impactOn()
 {
 	const float Limit = 70; // Scenario Limits
 	if(posX > Limit || posX < -Limit || posZ > Limit || posZ <-Limit){
-		alive = false;
+		state = -1;
 		return true;
 	}
-	/*
-	for(int i=0; i< SceneObjects.size() ;i++){
-		float x = SceneObjects[i]->posX;
-		float r = SceneObjects[i]->radius;
-
-	}
-	return false;
-	*/
-	
 	for(int i=0; i< SceneObjects.size(); i++){
 		Object *obj = SceneObjects[i];
-		//std::cout<<this<<" "<<obj <<std::endl;
-		if(obj == this|| owner == obj) continue;
-		float notDistance = (direction % 2 ==0)? posX - obj->posX: posZ-obj->posZ;
+		if(obj == this|| owner == obj || obj->state<1) continue;
+		float notDistance = (direction % 2 ==0)? posX - obj->posX: posZ - obj->posZ;
 		float sumRadius = radius + obj->radius;
-		if(notDistance*notDistance > sumRadius) continue; 
+		if(abs(notDistance) > sumRadius) continue;
+		float difInAxis;
 		switch(direction){
-			case 0: if(posZ + sumRadius > obj->posZ) return destroyObject(obj); break;
-			case 1: if(posX + sumRadius > obj->posX) return destroyObject(obj); break;
-			case 2: if(posZ < obj->posZ + sumRadius) return destroyObject(obj); break;
-			case 3: if(posX < obj->posX + sumRadius) return destroyObject(obj); break;
+			case 0: difInAxis = abs(posZ - obj->posZ); break;
+			case 1: difInAxis = abs(posX - obj->posX); break;
+			case 2: difInAxis = abs(posZ - obj->posZ); break;
+			case 3: difInAxis = abs(posX - obj->posX); break;
 		}
-	}
-	return false;
+		if(difInAxis < sumRadius) return destroyObject(obj);
 
-	
+
+
+	}
+	return false;	
 }
 
 Bullet::~Bullet(){}
@@ -119,11 +135,13 @@ void Bullet::display(){
 	//glVertex3f(.0,2.8,.0);
 }
 
-Tank::Tank(){
+Tank::Tank():Object(){
 	iniX = posX;
 	iniZ = posZ;
 	iDir = direction;
-};
+	radius = 4;
+	reloadBullets();
+}
 
 Tank::Tank(float x,float z,int dir):Object(x,z,dir){
 	iniX = x;
@@ -146,7 +164,7 @@ void Tank::move(int dir){
 	}
 }
 
-bool Tank::limit(int step){
+bool Tank::limit(float step){
 	const float Limit = 60; //Tanks outside limit
 	switch(direction){
 		case 0: if(posZ + step > Limit) return true; break;
@@ -154,20 +172,23 @@ bool Tank::limit(int step){
 		case 2: if(posZ - step < -Limit) return true; break;
 		case 3: if(posX - step < -Limit) return true; break;
 	}
+	float difInAxis;
 	for(int i=0; i< SceneObjects.size(); i++){
 		Object *obj = SceneObjects[i];
 		//std::cout<<this<<" "<<obj <<std::endl;
 		if(obj == this) continue;
+		if(obj->state==0) continue;
 		float notDistance = (direction % 2 ==0)? posX - obj->posX: posZ-obj->posZ;
 		float sumRadius = radius + obj->radius;
-		if(notDistance*notDistance > sumRadius) continue; 
+		if(abs(notDistance) > sumRadius) continue; 
 		
 		switch(direction){
-			case 0: if(posZ + step + sumRadius > obj->posZ) return true; break;
-			case 1: if(posX + step + sumRadius > obj->posX) return true; break;
-			case 2: if(posZ - step < obj->posZ + sumRadius) return true; break;
-			case 3: if(posX - step < obj->posX + sumRadius) return true; break;
+			case 0: difInAxis = abs(posZ + step - obj->posZ); break;
+			case 1: difInAxis = abs(posX + step - obj->posX); break;
+			case 2: difInAxis = abs(posZ - step - obj->posZ); break;
+			case 3: difInAxis = abs(posX - step - obj->posX); break;
 		}
+		if(difInAxis < sumRadius) return true;
 	}
 	return false;
 }
@@ -206,16 +227,17 @@ void Tank::display(){
 
 void Tank::shoot(){
 	int i = 0;
-	while (ammo[i]->alive == true && i<4){
+	while (i< maxAmmo-1 && ammo[i]->state>-1){
 		i++;
 	}
-	if (!ammo[i]->alive) {
+	//cout<<i<<" "<<ammo[i]->state<<endl;
+	if (ammo[i]->state<0) {
 		delete ammo[i];
 		ammo[i] = new Bullet(posX,posZ,direction);
+		ammo[i]->state=1;
 		ammo[i]->owner = this;
-		ammo[i]->alive = true;
 	}
-}	
+}
 	//void AttackIA(Mapa, Nodo *);
 	/*
     void BFS(Mapa, Nodo *);
@@ -224,13 +246,15 @@ void Tank::shoot(){
 	*/
 
 void Tank::reloadBullets(){
-	for (int i = 0; i<5; i++)
+	for (int i = 0; i< maxAmmo; i++){
 		ammo[i] = new Bullet();
+		//cout<<ammo[i]->alive<<endl;
+	}
 }
 
 void Tank::respawn() {
 	//if () {
-	alive = true;
+	state = 1;
 	posX = iniX;
 	posZ = iniZ;
 	reloadBullets();
@@ -238,4 +262,8 @@ void Tank::respawn() {
 	//}
 }
 
-Tank::~Tank(){}
+Tank::~Tank(){
+	for(int i=0;i < maxAmmo;i++)
+		//if(ammo[i] == nullptr)
+			delete ammo[i];
+}

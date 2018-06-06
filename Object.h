@@ -1,7 +1,12 @@
 #include "data.h"
+#include <assimp/Importer.hpp>	//OO version Header!
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/LogStream.hpp>
 
 const int maxAmmo = 5;
-	
+Assimp::Importer importer;
 class Object{
 	public:
 	float posX, posZ;
@@ -51,6 +56,7 @@ class Tank:public Object{
 	void DFS(Mapa, Nodo *);
 	*/
     void display();
+	void display2();
 	void respawn();
 	void reloadBullets();
 	~Tank();

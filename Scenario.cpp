@@ -6,72 +6,16 @@
 #include <math.h>
 #include <iostream>
 //#include "data.h"
-#include "stb_image.h"
 #include "Object.h"
 
 using namespace std;
 
 
 unsigned int texture;
-void LoadTextures(){
-	//Texturas we
-	// set the texture wrapping/filtering options (on the currently bound texture object)
-	/*
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	*/
-	// load and generate the texture
-	int width, height, nrChannels;
-	//char imagepath[] = "Models/Caral/untitled/texture_1.jpg";
-	char imagepath[] = "Models/Knuckles/Knuckles.png";
-	unsigned char *data = stbi_load(imagepath, &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+const int textnum = 1;
 
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		/*
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		*/
-		cout<<"Texura: "<<imagepath<<" leida."<<endl;
-		if(nrChannels>3){
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-		}else{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-		}
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-		//glEnable(GL_TEXTURE_2D);
-		//glGenerateMipmap(GL_TEXTURE_2D);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//glBindTexture(GL_TEXTURE_2D, 0);
-		//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		//glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		throw string("No se pudo leer el archivo");
-		//cout << "Failed to load texture" << endl;
-	}
-	stbi_image_free(data);
-	//return texture;
-}
+GLuint texID[textnum];
+
 
 vector<Object*> SceneObjects;
 Tank *player;
@@ -83,6 +27,10 @@ Tank enemy2(-50,0,50);
 */
 void Init( void )  {
     //LoadTextures();
+	if (!LoadGLTextures(scene))
+	{
+		return false;
+	}
 	glEnable(GL_TEXTURE_2D);
 	/*
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -94,18 +42,34 @@ void Init( void )  {
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	
+	/* AssimpTex
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);    // Uses default lighting parameters
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+	glEnable(GL_NORMALIZE);
 
+	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
+	glEnable(GL_LIGHT1);
+	*/
+	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	//gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0);
 	glMatrixMode(GL_MODELVIEW);
+	
+	
+	
 	//Llamada global para no hacer lectura constante	
 	//string path1 = "Models/Knuckles/Knuckles.obj";
 	//string path = "sample.txt";
 	//string path1 = "Models/Caral/caral_piramide.obj";
 	//string path1 = "Models/Tank/BaseTank.obj";
 	//string path1 = "Models/Tank2/Tank.obj";
-	std::string path1 = "Models/Tank/BaseTank.obj";
+	std::string path1 = "Models/Tank/tank2.obj";
 	Model *tankModel = readFile(path1);
 	player = new Tank(0,0,0);
 	enemy1 = new Tank(40,30,2);
@@ -162,10 +126,10 @@ void plotPoints(){//,Model model2){
 	
 	glBindTexture(GL_TEXTURE_2D, texture);
 	//glScalef(0.1,0.1,0.1);
-	glColor3f(.0, 0.8, .1);
+	//glColor3f(.0, 0.8, .1);
 	if(player->state==1) player->display();
 	
-	glColor3f(.8, 0.0, .1);
+	//glColor3f(.8, 0.0, .1);
 	if(enemy1->state==1) enemy1->display();
 	
 	if(block1->state==1) block1->display();
@@ -290,3 +254,58 @@ int main( int argc, char *argv[] )  {
 }
 
 /* ----------------------------------------------------------------------- */
+/*
+int main(int argc, char **argv)
+{
+	//struct aiLogStream stream;
+	glutInitWindowSize(900,600);
+	glutInitWindowPosition(100,100);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInit(&argc, argv);
+
+	glutCreateWindow("Assimp - Very simple OpenGL sample");
+	glutDisplayFunc(DrawGLScene);
+	glutReshapeFunc(ReSizeGLScene);
+
+	createAILogger();
+	logInfo("App fired!");
+	
+	std::cout<<"lelel: "<<argv[1]<<std::endl;
+	
+	if (argc > 1)
+	{
+		std::string modelpathW(argv[1]);
+		modelpath = std::string(modelpathW.begin(), modelpathW.end());
+		if (!Import3DFromFile(modelpath)) return 0;	
+	}
+
+	glClearColor(0.8f,0.8f,0.8f,1.f);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);    // Uses default lighting parameters 
+
+	glEnable(GL_DEPTH_TEST);
+
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+	glEnable(GL_NORMALIZE);
+
+	if(getenv("MODEL_IS_BROKEN"))
+		glFrontFace(GL_CW);
+
+	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+
+	glutGet(GLUT_ELAPSED_TIME);
+	InitGL();
+	glutMainLoop();
+	
+	//aiReleaseImport(scene);
+	textureIdMap.clear(); //no need to delete pointers in it manually here. (Pointers point to textureIds deleted in next step)
+	if (textureIds)
+	{
+		delete[] textureIds;
+		textureIds = NULL;
+	}
+	destroyAILogger();
+	return 0;
+}
+*/

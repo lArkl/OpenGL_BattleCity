@@ -30,7 +30,7 @@ Ke 0.000000 0.000000 0.000000
 Ni -1.000000
 d 1.000000
 illum 2
-map_Kd /home/gianfranco/Descargas/Caral+Piramide+Mayor/models/untitled/texture.jpg
+map_Kd untitled/texture.jpg
 
 newmtl material_2
 Ns 96.078431
@@ -41,7 +41,7 @@ Ke 0.000000 0.000000 0.000000
 Ni -1.000000
 d 1.000000
 illum 2
-map_Kd /home/gianfranco/Descargas/Caral+Piramide+Mayor/models/untitled/texture_0.jpg
+map_Kd untitled/texture_0.jpg
 
 newmtl material_3
 Ns 96.078431
@@ -52,7 +52,7 @@ Ke 0.000000 0.000000 0.000000
 Ni -1.000000
 d 1.000000
 illum 2
-map_Kd /home/gianfranco/Descargas/Caral+Piramide+Mayor/models/untitled/texture_1.jpg
+map_Kd untitled/texture_1.jpg
 
 newmtl material_4
 Ns 96.078431
@@ -63,7 +63,7 @@ Ke 0.000000 0.000000 0.000000
 Ni -1.000000
 d 1.000000
 illum 2
-map_Kd /home/gianfranco/Descargas/Caral+Piramide+Mayor/models/untitled/texture_1.jpg
+map_Kd untitled/texture_1.jpg
 
 newmtl material_5
 Ns 96.078431
@@ -74,4 +74,4 @@ Ke 0.000000 0.000000 0.000000
 Ni -1.000000
 d 1.000000
 illum 2
-map_Kd /home/gianfranco/Descargas/Caral+Piramide+Mayor/models/untitled/texture.jpg
+map_Kd untitled/texture.jpg

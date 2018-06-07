@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 using namespace std;
 
@@ -244,6 +245,28 @@ void Tank::shoot(){
 	void DFSvisit(Nodo*);
 	void DFS(Mapa, Nodo *);
 	*/
+void Tank::AttackIA(Tank *player){
+	std::mt19937 rng;
+	rng.seed(std::random_device()());
+   std::uniform_int_distribution<std::mt19937::result_type> dist4(0,4);
+   //std::uniform_int_distribution<std::mt19937::result_type> dist100(0,100);
+	int rand = dist4(rng);
+	if(rand<4)
+		move(rand);
+	else{
+		const int maxVision = 20;
+		float dif;
+		switch(direction){
+			case 0: dif = player->posZ - posZ;break;
+			case 1: dif = player->posX - posX; break;
+			case 2: dif = posZ-player->posZ; break;
+			case 3: dif = posX-player->posX; break;
+		}
+		if(dif<maxVision)
+			shoot();
+	}	
+}
+
 
 void Tank::reloadBullets(){
 	for (int i = 0; i< maxAmmo; i++){

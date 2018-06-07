@@ -44,7 +44,7 @@ class Tank:public Object{
 	bool limit(float);
 	void move(int);
 	void shoot();
-	//void AttackIA(Mapa, Nodo *);
+	void AttackIA(Tank *player);
 	/*
     void BFS(Mapa, Nodo *);
 	void DFSvisit(Nodo*);

@@ -1,12 +1,9 @@
-#include "data.h"
-#include <assimp/Importer.hpp>	//OO version Header!
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/LogStream.hpp>
+//#include "data.h"
+#include "Modeler.h"
 
 const int maxAmmo = 5;
-Assimp::Importer importer;
+
+
 class Object{
 	public:
 	float posX, posZ;
@@ -38,7 +35,9 @@ class Tank:public Object{
 	public:
 	float iniX,iniZ;
 	int iDir;
-	Model *model;
+	Mesh *mesh;
+	//const aiScene *scene;
+	//Model *model;
     //clock_t time;
 	Bullet *ammo[maxAmmo];
 	Tank();
@@ -56,7 +55,6 @@ class Tank:public Object{
 	void DFS(Mapa, Nodo *);
 	*/
     void display();
-	void display2();
 	void respawn();
 	void reloadBullets();
 	~Tank();

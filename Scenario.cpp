@@ -7,7 +7,7 @@
 #include <iostream>
 //#include "data.h"
 #include "Object.h"
-
+#include <vector>
 using namespace std;
 
 
@@ -26,17 +26,22 @@ Tank enemy1(50,0,50);
 Tank enemy2(-50,0,50);
 */
 void Init( void )  {
-    //LoadTextures();
-	if (!LoadGLTextures(scene))
-	{
-		return false;
-	}
+    
+	//std::string modelpath = "Models/Tank/tank2.obj";
+	std::string modelpath = "Models/Knuckles/Knuckles.obj";
+	//aiScene *tankModel;
+	Mesh *tankMesh = new Mesh(modelpath);
+	player = new Tank(0,0,0);
+	enemy1 = new Tank(40,30,2);
+	player->mesh = tankMesh;
+	enemy1->mesh = tankMesh;
+	//cout<<player->alive<<endl;
+	block1 = new Object(0,40,0);
+	SceneObjects.push_back(player);
+	SceneObjects.push_back(block1);
+	SceneObjects.push_back(enemy1);
+
 	glEnable(GL_TEXTURE_2D);
-	/*
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glColor3f( 0.0, 0.0, 0.0 );
-    gluOrtho2D( 0.0, 640.0, 0.0, 480.0 );
-	*/
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClearDepth(1.0);
 	glDepthFunc(GL_LESS);
@@ -44,17 +49,20 @@ void Init( void )  {
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	
-	/* AssimpTex
+	// AssimpTex
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);    // Uses default lighting parameters
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 	glEnable(GL_NORMALIZE);
 
+	GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat LightPosition[]= { 0.0f, 0.0f, 15.0f, 1.0f };
+
 	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
 	glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
 	glEnable(GL_LIGHT1);
-	*/
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -63,23 +71,6 @@ void Init( void )  {
 	
 	
 	
-	//Llamada global para no hacer lectura constante	
-	//string path1 = "Models/Knuckles/Knuckles.obj";
-	//string path = "sample.txt";
-	//string path1 = "Models/Caral/caral_piramide.obj";
-	//string path1 = "Models/Tank/BaseTank.obj";
-	//string path1 = "Models/Tank2/Tank.obj";
-	std::string path1 = "Models/Tank/tank2.obj";
-	Model *tankModel = readFile(path1);
-	player = new Tank(0,0,0);
-	enemy1 = new Tank(40,30,2);
-	player->model = tankModel;
-	enemy1->model = tankModel;
-	//cout<<player->alive<<endl;
-	block1 = new Object(0,40,0);
-	SceneObjects.push_back(player);
-	SceneObjects.push_back(block1);
-	SceneObjects.push_back(enemy1);
 }
 
 /* ----------------------------------------------------------------------- */
@@ -179,32 +170,6 @@ void special(int key, int x, int y){
     }
     glutPostRedisplay();
 }
-/* 
-Crear texto
-
-void initText2D(const char * texturePath);
-void printText2D(const char * text, int x, int y, int size);
-void cleanupText2D();
-std::vector<glm::vec2> vertices;
-std::vector<glm::vec2> UVs;
-*/
-
-//https://github.com/sprintr/opengl-examples/blob/master/OpenGL-Menu.cpp
-
-
-
-
-
-/* ----------------------------------------------------------------------- */
-/* Function    : void myDisplay( void )
- *
- * Description : This function gets called everytime the window needs to
- *               be redrawn.
- *
- * Parameters  : void
- *
- * Returns     : void
- */
 
 void Display( void)  {
 	glClear( GL_COLOR_BUFFER_BIT );

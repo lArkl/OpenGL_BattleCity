@@ -32,7 +32,7 @@ class Bullet:public Object
 class Tank:public Object{
 	public:
 	float iniX,iniZ;
-	int iDir;
+	int iDir,timer;
 	Model *model;
     //clock_t time;
 	Bullet *ammo[maxAmmo];
@@ -44,7 +44,9 @@ class Tank:public Object{
 	bool limit(float);
 	void move(int);
 	void shoot();
-	void AttackIA(Tank *player);
+	void attackIA(Tank *player, int rand);
+	void moveIA(Tank *player);
+	void idle();
 	/*
     void BFS(Mapa, Nodo *);
 	void DFSvisit(Nodo*);

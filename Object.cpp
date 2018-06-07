@@ -141,6 +141,7 @@ Tank::Tank():Object(){
 	iniZ = posZ;
 	iDir = direction;
 	radius = 4;
+	timer = 0;
 	reloadBullets();
 }
 
@@ -149,6 +150,7 @@ Tank::Tank(float x,float z,int dir):Object(x,z,dir){
 	iniZ = z;
 	iDir = dir;
 	radius = 4;
+	timer = 0;
 	reloadBullets();
 }
 
@@ -204,7 +206,7 @@ void Tank::display(){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 		*/
-		std::vector<Face>::iterator f;
+		vector<Face>::iterator f;
 		glBegin(GL_TRIANGLES);
 		for(f = model->faces.begin(); f!= model->faces.end(); ++f){
 			for(int i=0;i<3;i++){
@@ -245,33 +247,47 @@ void Tank::shoot(){
 	void DFSvisit(Nodo*);
 	void DFS(Mapa, Nodo *);
 	*/
-void Tank::AttackIA(Tank *player){
-	std::mt19937 rng;
-	rng.seed(std::random_device()());
-   std::uniform_int_distribution<std::mt19937::result_type> dist4(0,4);
-   //std::uniform_int_distribution<std::mt19937::result_type> dist100(0,100);
-	int rand = dist4(rng);
-	if(rand<4)
-		move(rand);
-	else{
-		const int maxVision = 20;
-		float dif;
+
+void Tank::attackIA(Tank *player,int rand){
+	const int maxVision = 30;
+	float difAxis=1000,axis=1000;
+	if(player->state){
 		switch(direction){
-			case 0: dif = player->posZ - posZ;break;
-			case 1: dif = player->posX - posX; break;
-			case 2: dif = posZ-player->posZ; break;
-			case 3: dif = posX-player->posX; break;
+			case 0: difAxis = player->posX - posX;axis = player->posZ - posZ; break;
+			case 1: difAxis = player->posZ - posZ;axis = player->posX - posX; break;
+			case 2: difAxis = player->posX - posX;axis = posZ-player->posZ; break;
+			case 3: difAxis = player->posZ - posZ;axis = posX-player->posX; break;
 		}
-		if(dif<maxVision)
+		if(axis>0 && axis<maxVision && abs(difAxis)<radius)
 			shoot();
-	}	
+	}else{
+		if(rand>2)
+			shoot();   	
+	}
 }
 
+void Tank::moveIA(Tank *player){
+	mt19937 rng;
+	rng.seed(random_device()());
+   uniform_int_distribution<mt19937::result_type> dist3(0,3);
+   int rand = dist3(rng);
+	move(rand);
+	attackIA(player,rand);
+}	
 
 void Tank::reloadBullets(){
 	for (int i = 0; i< maxAmmo; i++){
 		ammo[i] = new Bullet();
 		//cout<<ammo[i]->alive<<endl;
+	}
+}
+
+void Tank::idle(){
+	const int idleTime = 200;
+	if(state==0){
+		timer++;
+		if(timer >idleTime)
+			respawn();
 	}
 }
 
@@ -281,6 +297,7 @@ void Tank::respawn() {
 	posX = iniX;
 	posZ = iniZ;
 	reloadBullets();
+	timer = 0;
 		//Imprimir(direccion);
 	//}
 }

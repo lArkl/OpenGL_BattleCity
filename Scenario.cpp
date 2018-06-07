@@ -226,7 +226,7 @@ void Display( void)  {
 //	plotPoints(model2);
 }
 
-int timer=0;
+int globaltimer=0;
 void update(int value) {
 	for(int i=0;i<maxAmmo;i++){
 		//cout<<"shot "<<i<<" "<<player->ammo[i]->state<< endl;
@@ -239,10 +239,14 @@ void update(int value) {
 			}
 		}
 	}
-	timer = (timer+1)%12;
-	if(timer==0)
+	globaltimer = (globaltimer+1)%12;
+	if(globaltimer==0)
 		for(int j=0; j<numEnemies; j++)
-			if(enemies[j]->state==1)enemies[j]->AttackIA(player);
+			if(enemies[j]->state==1)enemies[j]->moveIA(player);
+	player->idle();
+	for(int j=0;j<numEnemies;j++){
+		enemies[j]->idle();
+	}
 	glutPostRedisplay();
 	glutTimerFunc(25, update, 0);
 }

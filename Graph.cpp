@@ -23,7 +23,6 @@ void Node::set(const int halfBase,const int halfDepth){
 
 Node::~Node(){}
 
- 
 Graph::Graph(int V)
 {
     this->V = V;
@@ -41,7 +40,8 @@ void Graph::generate(const int halfBase, const int halfDepth)
 	for(int i=0; i<V; i++){
 		nodes[i].idx = i;
         nodes[i].set(halfBase,halfDepth);
-        /*
+        //cout<<nodes[i].posX<<" "<<nodes[i].posZ<<endl;
+		/*
         nodes[i].adj[0] = i-cols<0? -1:i-cols;
 		nodes[i].adj[1] = (i+1)%cols==0? -1:i+1;
 		nodes[i].adj[2] = i+cols<V? i+cols:-1;
@@ -50,7 +50,29 @@ void Graph::generate(const int halfBase, const int halfDepth)
 	}
 }
 
-void Graph::BFS(int s,int end)
+Node Graph::getNode(int idx){
+	return nodes[idx];
+}
+
+int Graph::getV(){
+	return V;
+}
+
+void Graph::randomMap()
+{
+	
+	//cout<<cols<<endl;
+	for(int i=0; i<V; i++){
+		int r = rand()%100;
+		if (r>80)
+			nodes[i].numObject = 1;
+		else 
+			nodes[i].numObject = 0;
+	}
+}
+
+
+int Graph::BFS(int start,int end)
 {
 	// Mark all the vertices as not visited
 	bool *visited = new bool[V];
@@ -59,10 +81,10 @@ void Graph::BFS(int s,int end)
 	// Create a queue for BFS
 	list<int> queue;
 	// Mark the current node as visited and enqueue it
-	visited[s] = true;
-	queue.push_back(s);
-
-	while(!queue.empty())
+	visited[start] = true;
+	queue.push_back(start);
+	int s=-1;
+	while(!queue.empty() && s!=end)
 	{
 		// Dequeue a vertex from queue and print it
 		s = queue.front();
@@ -75,12 +97,18 @@ void Graph::BFS(int s,int end)
 				if (!visited[idx])
 				{
 					visited[idx] = true;
+					nodes[idx].parent = s;
 					queue.push_back(idx);
                     //if()
 				}
 			}
 		}
 	}
+	s = end;
+	while(nodes[s].parent!=start){
+		s = nodes[s].parent;
+	}
+	return s;
 //	cout<<endl;
 }
 

@@ -78,9 +78,9 @@ const int numEnemies = 2;
 vector<Object*> SceneObjects;
 Tank *player;
 Tank *enemies[numEnemies];
-Object *block1;
 
-//Sceneario size
+vector<Object*>blocks;
+//Scenario size
 const int halfBase = 76, halfDepth = 68;
 
 Graph Scenario(halfBase*halfDepth/16); //Num de nodos
@@ -105,21 +105,41 @@ void Init( void )  {
 	glMatrixMode(GL_MODELVIEW);
 
 	Scenario.generate(halfBase,halfDepth);
+	Scenario.randomMap();
+	Object *block;
+	int cont=0, playerIdx,positions[numEnemies];
+	for(int i=0;i<Scenario.getV();i++){
+		int num = Scenario.getNode(i).numObject;
+		if(num==1){
+			block = new Object(Scenario.getNode(i).posX,Scenario.getNode(i).posZ,1);
+			blocks.push_back(block);
+			SceneObjects.push_back(block);
+		}else{
+			if((i+3)%37==0 && cont < numEnemies){
+				positions[cont] = i;
+				cout<<i<<endl;
+				cont++;
+			}
+			if(i>Scenario.getV()*2/3)
+				playerIdx = i;
+		}
+	}
+	cout<<playerIdx<<endl;
 	//std::string path = "Models/Tank/BaseTank.obj";
 	std::string path = "Models/Tank/tank2.obj";
 	Model *tankModel = readFile(path);
 
-	player = new Tank(0,0,0);
+	player = new Tank(10,-40,0);
 	player->model = tankModel;
 	for(int j=0;j<numEnemies;j++){
 		int pos = j==0?1:-1;
-		enemies[j] = new Tank(pos*40,30,2);
+		enemies[j] = new Tank(Scenario.getNode(positions[j]).posX,Scenario.getNode(positions[j]).posZ,2);
+		//enemies[j] = new Tank(pos*55,-50,2);
 		enemies[j]->model = tankModel;
 		SceneObjects.push_back(enemies[j]);
 	}
-	block1 = new Object(0,40,0);
+//	block1 = new Object(0,40,0);
 	SceneObjects.push_back(player);
-	SceneObjects.push_back(block1);
 }
 
 /* ----------------------------------------------------------------------- */
@@ -173,9 +193,12 @@ void plotPoints(){//,Model model2){
 	glColor3f(.8, 0.0, .1);
 	for(int j=0; j<numEnemies; j++)
 		if(enemies[j]->state==1)enemies[j]->display();
-
-	if(block1->state==1) block1->display();
+	//Draw blocks
+	glColor3f(.3, 0.2, .1);
+	for(int i=0;i<blocks.size();i++)
+		if(blocks[i]->state==1) blocks[i]->display();
 	//DrawBullets
+	glColor3f(.4, 0.25, .8);
 	glBegin(GL_POINTS);
 		for(int i=0;i<maxAmmo;i++){
 			if(player->ammo[i]->state!=-1)

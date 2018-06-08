@@ -4,6 +4,8 @@ class Node
 {
 	public:
 	int idx;
+	int parent;
+	int numObject;
 	int posX,posZ;
 	int adj[4];
 	Node();
@@ -18,11 +20,12 @@ class Graph
 	Node *nodes;
 	public:
 	Graph(int V);  // Constructor
-
+	Node getNode(int);
+	int getV();
 	// function to add an edge to graph
 	void generate(int,int);
-
+	void randomMap();
 	// prints BFS traversal from a given source s
-	void BFS(int,int);
+	int BFS(int,int);
 	~Graph();
 };

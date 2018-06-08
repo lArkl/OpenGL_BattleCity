@@ -25,7 +25,7 @@ Object::Object(float x,float z, int dir){
 }
 
 void Object::display(){
-	radius = 4;
+	radius = 3.8;
 	int size = radius;
 	glPushMatrix();
 	glTranslatef(posX,size,posZ);
@@ -88,8 +88,9 @@ bool Bullet::destroyObject(Object *obj){
 
 bool Bullet::impactOn()
 {
-	const float Limit = 70; // Scenario Limits
-	if(posX > Limit || posX < -Limit || posZ > Limit || posZ <-Limit){
+	const float Limit = 72; // Scenario Limits
+	const int halfBase = 76, halfDepth = 68;
+	if(posX > halfBase || posX < -halfBase || posZ > halfDepth || posZ <-halfDepth){
 		state = -1;
 		return true;
 	}
@@ -171,11 +172,12 @@ void Tank::move(int dir){
 
 bool Tank::limit(float step){
 	const float Limit = 60; //Tanks outside limit
+	const int halfBase = 76, halfDepth = 68;
 	switch(direction){
-		case 0: if(posZ + step > Limit) return true; break;
-		case 1: if(posX + step > Limit) return true; break;
-		case 2: if(posZ - step < -Limit) return true; break;
-		case 3: if(posX - step < -Limit) return true; break;
+		case 0: if(posZ + step > halfDepth) return true; break;
+		case 1: if(posX + step > halfBase) return true; break;
+		case 2: if(posZ - step < -halfDepth) return true; break;
+		case 3: if(posX - step < -halfBase) return true; break;
 	}
 	float difInAxis;
 	for(int i=0; i< SceneObjects.size(); i++){

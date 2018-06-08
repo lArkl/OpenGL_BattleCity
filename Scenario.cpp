@@ -8,6 +8,7 @@
 //#include "data.h"
 #include "stb_image.h"
 #include "Object.h"
+//#include "Graph.h"
 
 using namespace std;
 
@@ -79,6 +80,11 @@ Tank *player;
 Tank *enemies[numEnemies];
 Object *block1;
 
+//Sceneario size
+const int halfBase = 76, halfDepth = 68;
+
+Graph Scenario(halfBase*halfDepth/16); //Num de nodos
+
 void Init( void )  {
     //LoadTextures();
 	glEnable(GL_TEXTURE_2D);
@@ -98,6 +104,7 @@ void Init( void )  {
 	//gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0);
 	glMatrixMode(GL_MODELVIEW);
 
+	Scenario.generate(halfBase,halfDepth);
 	//std::string path = "Models/Tank/BaseTank.obj";
 	std::string path = "Models/Tank/tank2.obj";
 	Model *tankModel = readFile(path);
@@ -148,13 +155,14 @@ void plotPoints(){//,Model model2){
 	glPushMatrix();
 	// Base
 	glColor3f(.8, 0.8, .8);
+	
 	//4.0 for model base, 20 for scenario
-	float halfSection = 70.0;
+	
 	glBegin(GL_QUADS);
-		glVertex3f(-halfSection,0.0,-halfSection);
-		glVertex3f(-halfSection,0.0,halfSection);
-		glVertex3f(halfSection,0.0,halfSection);
-		glVertex3f(halfSection,0.0,-halfSection);
+		glVertex3f(-halfBase,0.0,-halfDepth);
+		glVertex3f(-halfBase,0.0,halfDepth);
+		glVertex3f(halfBase,0.0,halfDepth);
+		glVertex3f(halfBase,0.0,-halfDepth);
 	glEnd();
 	
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -242,7 +250,8 @@ void update(int value) {
 	globaltimer = (globaltimer+1)%12;
 	if(globaltimer==0)
 		for(int j=0; j<numEnemies; j++)
-			if(enemies[j]->state==1)enemies[j]->moveIA(player);
+			if(enemies[j]->state==1)enemies[j]//->moveBFS(player,&Scenario);
+			->moveIA(player);
 	player->idle();
 	for(int j=0;j<numEnemies;j++){
 		enemies[j]->idle();

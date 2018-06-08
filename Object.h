@@ -1,5 +1,5 @@
 #include "data.h"
-
+#include "Graph.h"
 const int maxAmmo = 5;
 	
 class Object{
@@ -32,7 +32,7 @@ class Bullet:public Object
 class Tank:public Object{
 	public:
 	float iniX,iniZ;
-	int iDir,timer;
+	int iDir,timer,nodeIdx;
 	Model *model;
     //clock_t time;
 	Bullet *ammo[maxAmmo];
@@ -44,8 +44,9 @@ class Tank:public Object{
 	bool limit(float);
 	void move(int);
 	void shoot();
-	void attackIA(Tank *player, int rand);
+	void attackIA(Tank *player);
 	void moveIA(Tank *player);
+	void moveBFS(Tank *player, Graph *scenario);
 	void idle();
 	/*
     void BFS(Mapa, Nodo *);

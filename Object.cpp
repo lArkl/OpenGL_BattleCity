@@ -151,9 +151,11 @@ Tank::Tank(float x,float z,int dir):Object(x,z,dir){
 	iDir = dir;
 	radius = 4;
 	timer = 0;
+	//Random start
+	random_device rnd;
+	srand(rnd());
 	reloadBullets();
 }
-
 
 void Tank::move(int dir){
 	const float step = 0.9;
@@ -248,8 +250,9 @@ void Tank::shoot(){
 	void DFS(Mapa, Nodo *);
 	*/
 
-void Tank::attackIA(Tank *player,int rand){
+void Tank::attackIA(Tank *player){
 	const int maxVision = 30;
+	int threshold = 95;
 	float difAxis=1000,axis=1000;
 	if(player->state){
 		switch(direction){
@@ -260,20 +263,22 @@ void Tank::attackIA(Tank *player,int rand){
 		}
 		if(axis>0 && axis<maxVision && abs(difAxis)<radius)
 			shoot();
-	}else{
-		if(rand>2)
-			shoot();   	
-	}
+	}else
+		threshold = 80;
+	int r = rand()%100;
+	if(r> threshold)
+		shoot();	
 }
 
 void Tank::moveIA(Tank *player){
-	mt19937 rng;
-	rng.seed(random_device()());
-   uniform_int_distribution<mt19937::result_type> dist3(0,3);
-   int rand = dist3(rng);
-	move(rand);
-	attackIA(player,rand);
-}	
+	int r = rand()%4;
+	move(r);
+	attackIA(player);
+}
+
+void Tank::moveBFS(Tank *player, Graph *scenario){
+	scenario->BFS(nodeIdx,player->nodeIdx);
+}
 
 void Tank::reloadBullets(){
 	for (int i = 0; i< maxAmmo; i++){
@@ -292,18 +297,14 @@ void Tank::idle(){
 }
 
 void Tank::respawn() {
-	//if () {
 	state = 1;
 	posX = iniX;
 	posZ = iniZ;
 	reloadBullets();
 	timer = 0;
-		//Imprimir(direccion);
-	//}
 }
 
 Tank::~Tank(){
 	for(int i=0;i < maxAmmo;i++)
-		//if(ammo[i] == nullptr)
-			delete ammo[i];
+		delete ammo[i];
 }

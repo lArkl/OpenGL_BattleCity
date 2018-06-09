@@ -15,45 +15,54 @@ Object::Object()
 	posZ = 0.0;
 	direction = 0;
 	state = 1;
+	radius = 3.8;
 }
 
 Object::Object(float x,float z, int dir){
 	posX = x;
 	posZ = z;
 	direction = dir;
+	radius = 3.8;
+	state = 1;//Tells if it's recently created
+}
+
+Object::Object(Node n, int dir){
+	posX = n.posX;
+	posZ = n.posZ;
+	direction = dir;
+	radius = 3.8;
 	state = 1;//Tells if it's recently created
 }
 
 void Object::display(){
-	radius = 3.8;
-	int size = radius;
+	int size = 4;
 	glPushMatrix();
 	glTranslatef(posX,size,posZ);
 	glBegin(GL_QUADS);
-		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
-		glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
-		glTexCoord2f(1, 1); glVertex3f( size,  size, -size);
-		glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
+		glTexCoord2f(0, 0); glVertex3f(-size, -size/2, -size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size/2, -size);
+		glTexCoord2f(1, 1); glVertex3f( size,  size/2, -size);
+		glTexCoord2f(1, 0); glVertex3f( size, -size/2, -size);
 
-		glTexCoord2f(0, 0); glVertex3f(-size, -size, size);
-		glTexCoord2f(0, 1); glVertex3f(-size,  size, size);
-		glTexCoord2f(1, 1); glVertex3f( size,  size, size);
-		glTexCoord2f(1, 0); glVertex3f( size, -size, size);
+		glTexCoord2f(0, 0); glVertex3f(-size, -size/2, size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size/2, size);
+		glTexCoord2f(1, 1); glVertex3f( size,  size/2, size);
+		glTexCoord2f(1, 0); glVertex3f( size, -size/2, size);
 
-		glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
-		glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
-		glTexCoord2f(1, 1); glVertex3f(-size,  size,  size);
-		glTexCoord2f(1, 0); glVertex3f(-size, -size,  size);
+		glTexCoord2f(0, 0); glVertex3f(-size, -size/2, -size);
+		glTexCoord2f(0, 1); glVertex3f(-size,  size/2, -size);
+		glTexCoord2f(1, 1); glVertex3f(-size,  size/2,  size);
+		glTexCoord2f(1, 0); glVertex3f(-size, -size/2,  size);
 
-		glTexCoord2f(0, 0); glVertex3f(size, -size, -size);
-		glTexCoord2f(0, 1); glVertex3f(size,  size, -size);
-		glTexCoord2f(1, 1); glVertex3f(size,  size,  size);
-		glTexCoord2f(1, 0); glVertex3f(size, -size,  size);
+		glTexCoord2f(0, 0); glVertex3f(size, -size/2, -size);
+		glTexCoord2f(0, 1); glVertex3f(size,  size/2, -size);
+		glTexCoord2f(1, 1); glVertex3f(size,  size/2,  size);
+		glTexCoord2f(1, 0); glVertex3f(size, -size/2,  size);
 		
-		glTexCoord2f(0, 1); glVertex3f(-size, size,  size);
-		glTexCoord2f(0, 0); glVertex3f(-size, size, -size);
-		glTexCoord2f(1, 0); glVertex3f( size, size, -size);
-		glTexCoord2f(1, 1); glVertex3f( size, size,  size);
+		glTexCoord2f(0, 1); glVertex3f(-size, size/2,  size);
+		glTexCoord2f(0, 0); glVertex3f(-size, size/2, -size);
+		glTexCoord2f(1, 0); glVertex3f( size, size/2, -size);
+		glTexCoord2f(1, 1); glVertex3f( size, size/2,  size);
 	glEnd();
 	glPopMatrix();
 }
@@ -81,15 +90,15 @@ Bullet::Bullet(float x, float z, int dir):Object(x,z,dir)
 bool Bullet::destroyObject(Object *obj){
 	state = -1;
 	obj->state = 0;
-	cout<<posX<<" "<<posZ<<" "<<endl;
-	cout<<obj->posX<<" "<<obj->posZ<<" "<<endl;
+	//cout<<posX<<" "<<posZ<<" "<<endl;
+	//cout<<obj->posX<<" "<<obj->posZ<<" "<<endl;
 	return true;
 }
 
 bool Bullet::impactOn()
 {
 	const float Limit = 72; // Scenario Limits
-	const int halfBase = 76, halfDepth = 68;
+	const int halfBase = 84, halfDepth = 72;
 	if(posX > halfBase || posX < -halfBase || posZ > halfDepth || posZ <-halfDepth){
 		state = -1;
 		return true;
@@ -158,21 +167,22 @@ Tank::Tank(float x,float z,int dir):Object(x,z,dir){
 	reloadBullets();
 }
 
-void Tank::move(int dir){
-	const float step = 0.9;
-	direction = dir;
-	if(limit(step))return;
-	switch(direction){
-		case 0: posZ += step;break;
-		case 1: posX += step;break;
-		case 2: posZ -= step;break;
-		case 3: posX -= step;break;
-	}
+Tank::Tank(Node n, int dir):Object(n,dir){
+	iniX = posX;
+	iniZ = posZ;
+	iDir = dir;
+	radius = 4;
+	timer = 0;
+	nodeIdx = n.idx;
+	//Random start
+	random_device rnd;
+	srand(rnd());
+	reloadBullets();
 }
 
 bool Tank::limit(float step){
-	const float Limit = 60; //Tanks outside limit
-	const int halfBase = 76, halfDepth = 68;
+	//const float Limit = 60; //Tanks outside limit
+	const int halfBase = 84, halfDepth = 72;
 	switch(direction){
 		case 0: if(posZ + step > halfDepth) return true; break;
 		case 1: if(posX + step > halfBase) return true; break;
@@ -198,6 +208,48 @@ bool Tank::limit(float step){
 		if(difInAxis < sumRadius) return true;
 	}
 	return false;
+}
+
+void Tank::moveNode(int s, Graph *scenario){
+	Node n = scenario->nodes[s];
+	float dist = 0;
+	switch(direction){
+		case 0: dist = posZ - n.posZ; break; 
+		case 1: dist = posX - n.posX; break; 
+		case 2: dist = n.posZ - posZ; break; 
+		case 3: dist = n.posX - posX; break; 
+	}
+	if(dist==0)
+		nodeIdx = s;
+	//cout<<"Enemy Node: "<<nodeIdx<<endl;
+}
+
+void Tank::move(int dir){
+	const float step = 1.0;
+	direction = dir;
+	if(limit(step))return;
+	float p;
+	switch(direction){
+		case 0: posZ += step;break;
+		case 1: p=posX; posX += step;break;
+		case 2: p=posZ; posZ -= step;break;
+		case 3: p=posX; posX -= step;break;
+	}
+}
+
+void Tank::movePlayer(int dir, Graph *scenario){
+	move(dir);
+	int dist,s;
+	Node *n = scenario->nodes;
+	switch(dir){
+		case 0: s = nodeIdx - scenario->cols; dist = posZ - n[s].posZ; break; 
+		case 1: s = nodeIdx + 1; dist = posX - n[s].posX; break; 
+		case 2: s = nodeIdx + scenario->cols; dist = n[s].posZ - posZ; break; 
+		case 3: s = nodeIdx - 1; dist = n[s].posX - posX; break; 
+	}
+	if(dist==0)
+		nodeIdx = s;
+	//cout<<"Player node: "<<nodeIdx<<" s:"<<s<<endl;
 }
 
 void Tank::display(){
@@ -245,12 +297,6 @@ void Tank::shoot(){
 		ammo[i]->owner = this;
 	}
 }
-	//void AttackIA(Mapa, Nodo *);
-	/*
-    void BFS(Mapa, Nodo *);
-	void DFSvisit(Nodo*);
-	void DFS(Mapa, Nodo *);
-	*/
 
 void Tank::attackIA(Tank *player){
 	const int maxVision = 30;
@@ -275,11 +321,25 @@ void Tank::attackIA(Tank *player){
 void Tank::moveIA(Tank *player){
 	int r = rand()%4;
 	move(r);
-	attackIA(player);
+	//attackIA(player);
 }
 
 void Tank::moveBFS(Tank *player, Graph *scenario){
-	scenario->BFS(nodeIdx,player->nodeIdx);
+	int dir,s = scenario->BFS(nodeIdx,player->nodeIdx);
+	/*
+	int x= nodeIdx- s;
+	switch(x){
+		case 
+	}*/
+	for(int i=0;i<4;i++){
+		if(scenario->nodes[nodeIdx].adj[i] == s){
+			dir = i;
+			break;
+		}
+	}
+	move(dir);
+	moveNode(s,scenario);
+	attackIA(player);
 }
 
 void Tank::reloadBullets(){

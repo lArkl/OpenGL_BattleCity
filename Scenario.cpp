@@ -14,7 +14,7 @@ using namespace std;
 
 
 unsigned int texture;
-void LoadTextures(){
+void LoadTextures(char imagepath[]){
 	//Texturas we
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	/*
@@ -26,7 +26,6 @@ void LoadTextures(){
 	// load and generate the texture
 	int width, height, nrChannels;
 	//char imagepath[] = "Models/Caral/untitled/texture_1.jpg";
-	char imagepath[] = "Models/Knuckles/Knuckles.png";
 	unsigned char *data = stbi_load(imagepath, &width, &height, &nrChannels, 0);
 	if (data)
 	{
@@ -81,7 +80,7 @@ Tank *enemies[numEnemies];
 
 vector<Object*>blocks;
 //Scenario size
-const int halfBase = 76, halfDepth = 68;
+const int halfBase = 84, halfDepth = 72;
 
 Graph Scenario(halfBase*halfDepth/16); //Num de nodos
 
@@ -105,52 +104,38 @@ void Init( void )  {
 	glMatrixMode(GL_MODELVIEW);
 
 	Scenario.generate(halfBase,halfDepth);
-	Scenario.randomMap();
+	
+	//Scenario.randomMap();
+	Scenario.readMap();
+	
 	Object *block;
-	int cont=0, playerIdx,positions[numEnemies];
 	for(int i=0;i<Scenario.getV();i++){
 		int num = Scenario.getNode(i).numObject;
 		if(num==1){
-			block = new Object(Scenario.getNode(i).posX,Scenario.getNode(i).posZ,1);
+			block = new Object(Scenario.getNode(i),1);
 			blocks.push_back(block);
 			SceneObjects.push_back(block);
-		}else{
-			if((i+3)%37==0 && cont < numEnemies){
-				positions[cont] = i;
-				cout<<i<<endl;
-				cont++;
-			}
-			if(i>Scenario.getV()*2/3)
-				playerIdx = i;
 		}
 	}
-	cout<<playerIdx<<endl;
 	//std::string path = "Models/Tank/BaseTank.obj";
 	std::string path = "Models/Tank/tank2.obj";
 	Model *tankModel = readFile(path);
-
-	player = new Tank(10,-40,0);
+	
+	// Level1 Nodes
+	const int playerNode = 52;
+	const int enemyNode = 337;
+	
+	player = new Tank(Scenario.getNode(playerNode),2);
 	player->model = tankModel;
 	for(int j=0;j<numEnemies;j++){
 		int pos = j==0?1:-1;
-		enemies[j] = new Tank(Scenario.getNode(positions[j]).posX,Scenario.getNode(positions[j]).posZ,2);
-		//enemies[j] = new Tank(pos*55,-50,2);
+		enemies[j] = new Tank(Scenario.getNode(enemyNode+j*16),2);
 		enemies[j]->model = tankModel;
 		SceneObjects.push_back(enemies[j]);
 	}
 //	block1 = new Object(0,40,0);
 	SceneObjects.push_back(player);
 }
-
-/* ----------------------------------------------------------------------- */
-/* Function    : void drawArc(  )
- *
- * Description : Dibuja un arco.
- *
- * Parameters  : float x, float y, float r, float t0, float sweep
- *
- * Returns     : void
- */
 
 float spin = 0;
 float view_rotx=0.0, view_roty=0.0;//, view_rotz=0.0;
@@ -162,7 +147,7 @@ float view_rotx=0.0, view_roty=0.0;//, view_rotz=0.0;
 
 void plotPoints(){//,Model model2){
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	glPointSize(4.0);
+	glPointSize(6.0);
 	glLineWidth(3.0);
 	
 	glPushMatrix();
@@ -270,11 +255,15 @@ void update(int value) {
 			}
 		}
 	}
-	globaltimer = (globaltimer+1)%12;
+	globaltimer = (globaltimer+1)%9;
 	if(globaltimer==0)
 		for(int j=0; j<numEnemies; j++)
-			if(enemies[j]->state==1)enemies[j]//->moveBFS(player,&Scenario);
-			->moveIA(player);
+			if(enemies[j]->state==1){
+				if(player->state==1)
+					enemies[j]->moveBFS(player,&Scenario);
+				else
+					enemies[j]->moveIA(player);
+			}
 	player->idle();
 	for(int j=0;j<numEnemies;j++){
 		enemies[j]->idle();

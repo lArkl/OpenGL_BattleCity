@@ -3,8 +3,8 @@
 #include "Object.h"
 #include <string>
 
+extern Graph Scenario;
 extern Tank *player;
-
 void keyboard(unsigned char key, int x, int y){
 	//std::cout<<key<<std::endl;
 	switch (key){
@@ -19,44 +19,31 @@ void keyboard(unsigned char key, int x, int y){
 		else glEnable(GL_CULL_FACE);
         break;
 	case 's':
-		player->move(0);
-        //zz -= 0.1;
+		player->movePlayer(0,&Scenario);
+        //player->move(0);
         glutPostRedisplay();
-        //glTranslatef(0.0,-1.0,0.0);
-        //glRotatef(1.0, 1., 0., 0.);
-        //playerPos.x = 0;
         break;
 	case 'w':
-		//zz += 0.1;
-        player->move(2);
+		//player->move(2);
+        player->movePlayer(2,&Scenario);
         glutPostRedisplay();
-        //glTranslatef(0.0,1.0,0.0);
-        //glRotatef(1.0, -1., 0., 0.);
         break;
 	case 'a':
-		//xx -= 0.1 ;
-        player->move(3);
+		//player->move(3);
+        player->movePlayer(3,&Scenario);
         glutPostRedisplay();
-        //glTranslatef(-1.0,0.0,0.0);
-        //glRotatef(1.0, 0.0, 1.0, 0.);
         break;
 	case 'd':
-		//xx += 0.1;
-        player->move(1);
+		player->movePlayer(1,&Scenario);
+        //player->move(1);
         glutPostRedisplay();
-        //glTranslatef(1.0,0.0,0.0);
-        //glRotatef(1.0, 0.0, -1.0, 0.);
         break;
     case 'v':
         player->shoot();break;
 	case 't':
-		//glTranslatef(0.0,0.0,-1.0);
-        //glTranslatef(-0.01, -0.00,0.01);
-        break;
+		break;
     case 'g':
-		//glTranslatef(0.0,0.0,1.0);
-        //glTranslatef(-0.01, -0.00,0.01);
-        break;
+		break;
     case 'q':
     //case 27:
 		exit(0);

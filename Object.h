@@ -10,6 +10,7 @@ class Object{
 	float radius;
 	Object();
 	Object(float, float, int);
+	Object(Node,int);
     //virtual void move();
     virtual void display();
 	~Object();
@@ -38,6 +39,7 @@ class Tank:public Object{
 	Bullet *ammo[maxAmmo];
 	Tank();
 	Tank(float,float,int);
+	Tank(Node,int);
 	//void move();
 	//void MoverIA(Mapa, Nodo *, clock_t);
 	//void MoverIA2(Mapa, int, Nodo *, clock_t,Jugador*);	
@@ -46,7 +48,9 @@ class Tank:public Object{
 	void shoot();
 	void attackIA(Tank *player);
 	void moveIA(Tank *player);
-	void moveBFS(Tank *player, Graph *scenario);
+	void moveNode(int,Graph*);
+	void movePlayer(int,Graph*);
+	void moveBFS(Tank *, Graph *);
 	void idle();
 	/*
     void BFS(Mapa, Nodo *);

@@ -27,6 +27,7 @@ class Graph
 	void generate(int,int);
 	void randomMap();
 	void readMap();
+	void print();
 	// prints BFS traversal from a given source s
 	int BFS(int,int);
 	~Graph();

@@ -26,10 +26,11 @@ Object::Object(float x,float z, int dir){
 	state = 1;//Tells if it's recently created
 }
 
-Object::Object(Node n, int dir){
-	posX = n.posX;
-	posZ = n.posZ;
+Object::Object(Node *n, int dir){
+	posX = n->posX;
+	posZ = n->posZ;
 	direction = dir;
+	node = n;
 	radius = 3.8;
 	state = 1;//Tells if it's recently created
 }
@@ -75,9 +76,10 @@ Bullet::Bullet():Object(){
 	radius = 1;
 }
 
-Bullet::Bullet(float x, float z, int dir):Object(x,z,dir)
+Bullet::Bullet(Node *n, float x, float z, int dir):Object(x,z,dir)
 {
 	radius = 1;
+	node = n;
 	const int step = 4;
 	switch (dir) {
 		case 0: posZ = z + step;break;
@@ -90,8 +92,7 @@ Bullet::Bullet(float x, float z, int dir):Object(x,z,dir)
 bool Bullet::destroyObject(Object *obj){
 	state = -1;
 	obj->state = 0;
-	//cout<<posX<<" "<<posZ<<" "<<endl;
-	//cout<<obj->posX<<" "<<obj->posZ<<" "<<endl;
+	obj->node->numObject = 0;
 	return true;
 }
 
@@ -117,9 +118,6 @@ bool Bullet::impactOn()
 			case 3: difInAxis = abs(posX - obj->posX); break;
 		}
 		if(difInAxis < sumRadius) return destroyObject(obj);
-
-
-
 	}
 	return false;	
 }
@@ -167,13 +165,13 @@ Tank::Tank(float x,float z,int dir):Object(x,z,dir){
 	reloadBullets();
 }
 
-Tank::Tank(Node n, int dir):Object(n,dir){
+Tank::Tank(Node *n, int dir):Object(n,dir){
 	iniX = posX;
 	iniZ = posZ;
 	iDir = dir;
 	radius = 4;
 	timer = 0;
-	nodeIdx = n.idx;
+	nodeIdx = n->idx;
 	//Random start
 	random_device rnd;
 	srand(rnd());
@@ -219,8 +217,10 @@ void Tank::moveNode(int s, Graph *scenario){
 		case 2: dist = n.posZ - posZ; break; 
 		case 3: dist = n.posX - posX; break; 
 	}
-	if(dist==0)
+	if(dist==0){
 		nodeIdx = s;
+		node = &scenario->nodes[s];
+	}
 	//cout<<"Enemy Node: "<<nodeIdx<<endl;
 }
 
@@ -228,12 +228,11 @@ void Tank::move(int dir){
 	const float step = 1.0;
 	direction = dir;
 	if(limit(step))return;
-	float p;
 	switch(direction){
 		case 0: posZ += step;break;
-		case 1: p=posX; posX += step;break;
-		case 2: p=posZ; posZ -= step;break;
-		case 3: p=posX; posX -= step;break;
+		case 1: posX += step;break;
+		case 2: posZ -= step;break;
+		case 3: posX -= step;break;
 	}
 }
 
@@ -292,7 +291,7 @@ void Tank::shoot(){
 	//cout<<i<<" "<<ammo[i]->state<<endl;
 	if (ammo[i]->state<0) {
 		delete ammo[i];
-		ammo[i] = new Bullet(posX,posZ,direction);
+		ammo[i] = new Bullet(node,posX,posZ,direction);
 		ammo[i]->state=1;
 		ammo[i]->owner = this;
 	}

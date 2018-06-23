@@ -6,7 +6,6 @@
 #include <math.h>
 #include <iostream>
 //#include "data.h"
-#include "stb_image.h"
 #include "Object.h"
 //#include "Graph.h"
 
@@ -112,7 +111,7 @@ void Init( void )  {
 	for(int i=0;i<Scenario.getV();i++){
 		int num = Scenario.getNode(i).numObject;
 		if(num==1){
-			block = new Object(Scenario.getNode(i),1);
+			block = new Object(&Scenario.nodes[i],1);
 			blocks.push_back(block);
 			SceneObjects.push_back(block);
 		}
@@ -125,11 +124,11 @@ void Init( void )  {
 	const int playerNode = 52;
 	const int enemyNode = 337;
 	
-	player = new Tank(Scenario.getNode(playerNode),2);
+	player = new Tank(&Scenario.nodes[playerNode],2);
 	player->model = tankModel;
 	for(int j=0;j<numEnemies;j++){
 		int pos = j==0?1:-1;
-		enemies[j] = new Tank(Scenario.getNode(enemyNode+j*16),2);
+		enemies[j] = new Tank(&Scenario.nodes[enemyNode+j*16],2);
 		enemies[j]->model = tankModel;
 		SceneObjects.push_back(enemies[j]);
 	}
@@ -244,6 +243,8 @@ void Display( void)  {
 
 int globaltimer=0;
 void update(int value) {
+	//system("clear");
+	//Scenario.print();
 	for(int i=0;i<maxAmmo;i++){
 		//cout<<"shot "<<i<<" "<<player->ammo[i]->state<< endl;
 		if(player->ammo[i]->state==1){

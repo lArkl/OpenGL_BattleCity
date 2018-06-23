@@ -101,6 +101,18 @@ void Graph::readMap()
 	}
 }
 
+void Graph::print(){
+	for(int i = 0;i<rows;i++){
+		for(int j =0;j<cols;j++){
+			if(nodes[j+i*cols].numObject==1)
+				cout<<" M ";
+			else
+				cout<< "   ";
+		}
+		cout<<endl;
+	}
+}
+
 int Graph::BFS(int start,int end)
 {
 	// Mark all the vertices as not visited

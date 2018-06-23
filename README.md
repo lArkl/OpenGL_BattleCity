@@ -1,9 +1,13 @@
 # Battle City in Peruvian Ruins
 
-Image Library:
-[STB](https://github.com/nothings/stb)
+The Project consists in the popular game BattleCity with 3D Graphics using OpenGL (version < 3).  
+
+[First Demo](https://www.youtube.com/watch?v=lRBeyBNtiQg)
+
+[Second Demo](https://www.youtube.com/watch?v=rMjS-yilLbQ)
 
 Models:
+
 [Caral Piramide Mayor by Cesar](https://3dwarehouse.sketchup.com/model/c3f303a329f195dfe5fb8e03d34ffe6e/Piramide-Mayor-Caral)
 
 [Ugandan Knuckles](https://tidiestflyer.deviantart.com/art/The-Knuckles-meme-as-a-3d-model-704695335)

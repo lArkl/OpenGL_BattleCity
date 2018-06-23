@@ -7,10 +7,11 @@ class Object{
 	float posX, posZ;
 	int direction;
 	int state;
+	Node *node;
 	float radius;
 	Object();
 	Object(float, float, int);
-	Object(Node,int);
+	Object(Node *,int);
     //virtual void move();
     virtual void display();
 	~Object();
@@ -22,7 +23,7 @@ class Bullet:public Object
 	Object *owner;
 	bool shot;
 	Bullet();
-	Bullet(float,float,int);
+	Bullet(Node *,float,float,int);
 	bool destroyObject(Object*);
 	void move();
 	bool impactOn();
@@ -39,7 +40,7 @@ class Tank:public Object{
 	Bullet *ammo[maxAmmo];
 	Tank();
 	Tank(float,float,int);
-	Tank(Node,int);
+	Tank(Node *,int);
 	//void move();
 	//void MoverIA(Mapa, Nodo *, clock_t);
 	//void MoverIA2(Mapa, int, Nodo *, clock_t,Jugador*);	

@@ -27,8 +27,8 @@ Tank enemy2(-50,0,50);
 */
 void Init( void )  {
     
-	//std::string modelpath = "Models/Tank/tank2.obj";
-	std::string modelpath = "Models/Knuckles/Knuckles.obj";
+	std::string modelpath = "Models/Tank/tank2.obj";
+	//std::string modelpath = "Models/Knuckles/Knuckles.obj";
 	//aiScene *tankModel;
 	Mesh *tankMesh = new Mesh(modelpath);
 	player = new Tank(0,0,0);
@@ -41,12 +41,20 @@ void Init( void )  {
 	SceneObjects.push_back(block1);
 	SceneObjects.push_back(enemy1);
 
-	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+	//glEnable(GL_NORMALIZE);
+	if(getenv("MODEL_IS_BROKEN"))
+		glFrontFace(GL_CW);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+
+
+	//glEnable(GL_TEXTURE_2D);
+	glShadeModel(GL_SMOOTH);		 // Enables Smooth Shading
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClearDepth(1.0);
-	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_SMOOTH);
+	glDepthFunc(GL_LEQUAL);//(GL_LESS);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	
 	// AssimpTex

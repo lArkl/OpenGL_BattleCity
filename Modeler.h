@@ -8,15 +8,21 @@ void destroyAILogger();
 void logInfo(std::string logString)
 void logDebug(const char* logString)
 */
+void createAILogger();
+void destroyAILogger();
+void logInfo(std::string logString);
+/*
+void logDebug(const char* logString)
+*/
 class Mesh{
     public:
-    std::map<std::string, unsigned int*> textureIdMap;	// map image filenames to textureIds
+    std::map<std::string, unsigned int*> textureIdMap;  // map image filenames to textureIds
     unsigned int* textureIds;
     const aiScene *scene;
-    
     Mesh();
     Mesh(const std::string& pFile);
     ~Mesh();
+    void setMesh(const std::string& pFile);
     void recursive_render (const struct aiScene *sc, const struct aiNode* nd, float scale);
     void apply_material(const aiMaterial *mtl);
     int LoadGLTextures(const std::string& modelpath);

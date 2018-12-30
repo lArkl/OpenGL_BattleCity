@@ -4,10 +4,14 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <SDL2/SDL_image.h>
 
 using namespace std;
 
 extern std::vector<Object*> SceneObjects;
+
+const int numTEXT = 4;
+GLuint texID[numTEXT]; // Textures
 
 Object::Object()
 {
@@ -36,7 +40,10 @@ Object::Object(Node *n, int dir){
 }
 
 void Object::display(){
+	//glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texID[2]); //binds Block2 texture
 	int size = 4;
+
 	glPushMatrix();
 	glTranslatef(posX,size,posZ);
 	glBegin(GL_QUADS);
@@ -252,6 +259,7 @@ void Tank::movePlayer(int dir, Graph *scenario){
 }
 
 void Tank::display(){
+	glBindTexture(GL_TEXTURE_2D, texID[3]); //tankTex.jpg
 	glPushMatrix();
 		glTranslatef(posX,.0,posZ);
 		glRotatef((direction-1)*90,0,1.0,0);
@@ -266,15 +274,13 @@ void Tank::display(){
 		for(f = model->faces.begin(); f!= model->faces.end(); ++f){
 			for(int i=0;i<3;i++){
 				int index;
+				index = (*f).vert[i]-1;
 				//Texture coord
-				/*
-				index = (*f).vtext[i]-1;
 				if(index>-1){
-					Dot d = model.textures.at(index);
+					Dot d = model->textures[index];
 					//cout<<d.x<<" "<<d.y<<endl;
 					glTexCoord2f(d.x,d.y);
-				}*/		
-				index = (*f).vert[i]-1;
+				}
 				Point p = model->vertexs[index];
 				glVertex3f(p.x,p.y,p.z );
 			}	
@@ -368,4 +374,91 @@ void Tank::respawn() {
 Tank::~Tank(){
 	for(int i=0;i < maxAmmo;i++)
 		delete ammo[i];
+}
+
+
+//Path to textures
+const string texdir = "Textures/";
+string textureFileNames[numTEXT] = {texdir+"grass1.jpg",texdir+"block.jpg",
+						texdir+"block2.png",texdir+"tankPlayer.jpg"};
+
+bool loadTextures() {
+	glGenTextures(numTEXT,texID);  // Obtener el Id textura 
+	for (int i = 0; i < numTEXT; ++i) {
+		// this surface will tell us the details of the image
+		SDL_Surface *surface = IMG_Load(textureFileNames[i].c_str()); 
+
+		GLint nColors;
+		GLenum textureFormat;
+
+		if(surface){
+			//get number of channels in the SDL surface
+			nColors = surface->format->BytesPerPixel;
+
+			//contains an alpha channel
+			if(nColors == 4)
+			{
+				if(surface->format->Rmask==0x000000ff)
+			    	textureFormat = GL_RGBA;
+				else
+			    	textureFormat = GL_BGRA;
+			}
+			else if(nColors == 3) //no alpha channel
+			{
+				if(surface->format->Rmask==0x000000ff)
+			    	textureFormat = GL_RGB;
+				else
+			    	textureFormat = GL_BGR;
+			}
+			else
+			{
+				std::cout << "warning: the image is not truecolor…this will break " << std::endl;
+			}
+
+			// Have OpenGL generate a texture object handle for us
+			//glGenTextures(i, texture[i]);
+
+			// Bind the texture object
+			glBindTexture(GL_TEXTURE_2D, texID[i]);
+			// Set the texture’s stretching properties
+			
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	
+			glTexImage2D( GL_TEXTURE_2D, 0, nColors, surface->w, surface->h, 0, textureFormat, GL_UNSIGNED_BYTE, surface->pixels);
+
+			// we also want to be able to deal with odd texture dimensions
+			glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+			glPixelStorei( GL_UNPACK_ROW_LENGTH, 0 );
+			glPixelStorei( GL_UNPACK_SKIP_PIXELS, 0 );
+			glPixelStorei( GL_UNPACK_SKIP_ROWS, 0 );
+			//width = surface->w;
+			//height = surface->h;
+		}
+		else {
+			std::cout << "LoadTexture:: Could not load " << textureFileNames[i].c_str()<< ": " << SDL_GetError() << std::endl;
+			return false;
+		//SDL_Quit();
+		}
+		// Free the SDL_Surface only if it was successfully created
+		if(surface) {
+			SDL_FreeSurface(surface);
+		}
+	}
+	return true;
+}
+
+void displayScenario(){
+	// Base
+	const int halfBase = 84, halfDepth = 72;	
+	//glColor3f(.8, 0.8, .8);
+	glBindTexture(GL_TEXTURE_2D, texID[0]);
+	//4.0 for model base, 20 for scenario
+	
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(-halfBase,0.0,-halfDepth);
+		glTexCoord2f(0, 2.1);glVertex3f(-halfBase,0.0,halfDepth);
+		glTexCoord2f(2.4, 2.1);glVertex3f(halfBase,0.0,halfDepth);
+		glTexCoord2f(2.4, 0);glVertex3f(halfBase,0.0,-halfDepth);
+	glEnd();
 }

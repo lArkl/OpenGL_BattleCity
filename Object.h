@@ -2,6 +2,9 @@
 #include "Graph.h"
 const int maxAmmo = 5;
 	
+bool loadTextures();
+void displayScenario();
+
 class Object{
 	public:
 	float posX, posZ;

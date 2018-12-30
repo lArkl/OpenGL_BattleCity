@@ -8,12 +8,7 @@
 //#include "data.h"
 #include "Object.h"
 //#include "Graph.h"
-
 using namespace std;
-
-
-unsigned int texture;
-
 
 const int numEnemies = 2;
 vector<Object*> SceneObjects;
@@ -34,11 +29,47 @@ void Init( void )  {
     glColor3f( 0.0, 0.0, 0.0 );
     gluOrtho2D( 0.0, 640.0, 0.0, 480.0 );
 	*/
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glClearDepth(1.0);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_SMOOTH);
+	glShadeModel(GL_SMOOTH);	
+
+	/*
+	//Phong?
+	GLfloat ambient[] = { 0.9, 0.9, 0.9, 1.0 };
+	GLfloat diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat position[] = { 0.0, -8.0, 0.0, 0.0 };
+	GLfloat lmodel_ambient[] = { 0.4, 0.4, 0.4, 1.0 };
+	GLfloat local_view[] = { 0.0 };
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+	glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER, local_view);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+
+	//Phong materials
+	//GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
+	GLfloat mat_ambient[] = { 0.9, 0.9, 0.9, 1.0 };
+	//GLfloat mat_ambient_color[] = { 0.9, 0.2, 0.2, 1.0 };
+	GLfloat mat_diffuse[] = { 0.1, 0.1, 0.8, 1.0 };
+	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	//GLfloat no_shininess[] = { 0.0 };
+	GLfloat low_shininess[] = { 5.0 };
+	//GLfloat high_shininess[] = { 100.0 };
+	//GLfloat mat_emission[] = {0.1, 0.3, 0.2, 0.0};
+
+	//glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+	*/
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -60,7 +91,7 @@ void Init( void )  {
 		}
 	}
 	//std::string path = "Models/Tank/BaseTank.obj";
-	std::string path = "Models/Tank/tank2.obj";
+	std::string path = "Models/Tank/tankTex.obj";
 	Model *tankModel = readFile(path);
 	
 	// Level1 Nodes
@@ -77,7 +108,10 @@ void Init( void )  {
 	}
 //	block1 = new Object(0,40,0);
 	SceneObjects.push_back(player);
+	//cout<<enemies[0]->iniX<<" : "<<enemies[0]->iniZ<<endl;
 }
+
+
 
 float spin = 0;
 float view_rotx=0.0, view_roty=0.0;//, view_rotz=0.0;
@@ -100,32 +134,22 @@ void plotPoints(){//,Model model2){
 	//glRotatef(view_rotz, 0.0, 0.0, 1.0);
     
 	glPushMatrix();
-	// Base
-	glColor3f(.8, 0.8, .8);
+	displayScenario();
 	
-	//4.0 for model base, 20 for scenario
-	
-	glBegin(GL_QUADS);
-		glVertex3f(-halfBase,0.0,-halfDepth);
-		glVertex3f(-halfBase,0.0,halfDepth);
-		glVertex3f(halfBase,0.0,halfDepth);
-		glVertex3f(halfBase,0.0,-halfDepth);
-	glEnd();
-	
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//glBindTexture(GL_TEXTURE_2D, texture);
 	//glScalef(0.1,0.1,0.1);
-	glColor3f(.0, 0.8, .1);
+	//glColor3f(.0, 0.8, .1);
 	if(player->state==1) player->display();
 	
-	glColor3f(.8, 0.0, .1);
+	//glColor3f(.8, 0.0, .1);
 	for(int j=0; j<numEnemies; j++)
 		if(enemies[j]->state==1)enemies[j]->display();
 	//Draw blocks
-	glColor3f(.3, 0.2, .1);
+	//glColor3f(.3, 0.2, .1);
 	for(int i=0;i<blocks.size();i++)
 		if(blocks[i]->state==1) blocks[i]->display();
 	//DrawBullets
-	glColor3f(.4, 0.25, .8);
+	//glColor3f(.4, 0.25, .8);
 	glBegin(GL_POINTS);
 		for(int i=0;i<maxAmmo;i++){
 			if(player->ammo[i]->state!=-1)
@@ -147,13 +171,6 @@ void plotPoints(){//,Model model2){
 	//glFlush();
 }
 
-
-void mousefunction(int button, int state, int x, int y){
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-		spin = fmod(spin + 30.0, 360);
-		glutPostRedisplay();
-    }
-}
 
 void handleResize(int w, int h) {
 	glViewport(0, 0, w, h);
@@ -222,7 +239,7 @@ int main( int argc, char *argv[] )  {
 	// Definir Color RGB y Single Buffer.
 	glutInitDisplayMode( GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH);
 	// Definir la ventana en pixeles de la pantalla .
-	glutInitWindowSize( 640, 480 );
+	glutInitWindowSize( 854, 480 );
 	// Definir la posicion de la ventanaen pixeles de la pantalla.
 	glutInitWindowPosition( 100, 150 );
 	// Crear la ventana.
@@ -231,14 +248,21 @@ int main( int argc, char *argv[] )  {
 
 	glutDisplayFunc( Display );
 	// Inicializar algunas cosas.
-	Init( );
+	Init();
+	//Cargar texturas
+	if(!loadTextures()){
+		for(int i = 0; i<SceneObjects.size(); i++)
+			delete SceneObjects[i];
+		return -1;
+	}
+
 	//glutReshapeFunc(reshape);
 	glutReshapeFunc(handleResize);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
     
 	//glutKeyboardFunc(Key_Released);
-	glutMouseFunc(mousefunction);
+	//glutMouseFunc(mousefunction);
 	
 	glutTimerFunc(25, update, 0); //Add a timer
 	// Ahora que tenemos todo definido, el loop  que responde  a eventos.

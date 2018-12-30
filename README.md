@@ -6,7 +6,7 @@ The Project consists in the popular game BattleCity with 3D Graphics using OpenG
 
 [Second Demo](https://www.youtube.com/watch?v=rMjS-yilLbQ)
 
-Models:
+## Models:
 
 [Caral Piramide Mayor by Cesar](https://3dwarehouse.sketchup.com/model/c3f303a329f195dfe5fb8e03d34ffe6e/Piramide-Mayor-Caral)
 
@@ -15,3 +15,8 @@ Models:
 [Super Tank](https://3dwarehouse.sketchup.com/model/97e3c13942b1fc6e94f6eb5426119534/Super-tank)
 
 [Castillo de Huaricanga](https://3dwarehouse.sketchup.com/model/2c059bb43542cebd26db8e0caa5f63eb/Sitio-Arqueologico-Castillo-de-Huaricanga)
+
+## Compile & Run
+
+	$ g++ *.h *.cpp -lGL -lglut -lGLU -lSDL2 -lSDL2_image -o battleCity.out
+	$ ./battleCity.out

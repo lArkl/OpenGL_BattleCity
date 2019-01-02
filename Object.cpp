@@ -10,7 +10,7 @@ using namespace std;
 
 extern std::vector<Object*> SceneObjects;
 
-const int numTEXT = 4;
+const int numTEXT = 5;
 GLuint texID[numTEXT]; // Textures
 
 Object::Object()
@@ -47,26 +47,31 @@ void Object::display(){
 	glPushMatrix();
 	glTranslatef(posX,size,posZ);
 	glBegin(GL_QUADS);
+		glNormal3f(0,0,-1.0);
 		glTexCoord2f(0, 0); glVertex3f(-size, -size/2, -size);
 		glTexCoord2f(0, 1); glVertex3f(-size,  size/2, -size);
 		glTexCoord2f(1, 1); glVertex3f( size,  size/2, -size);
 		glTexCoord2f(1, 0); glVertex3f( size, -size/2, -size);
 
+		glNormal3f(0,0,1.0);
 		glTexCoord2f(0, 0); glVertex3f(-size, -size/2, size);
 		glTexCoord2f(0, 1); glVertex3f(-size,  size/2, size);
 		glTexCoord2f(1, 1); glVertex3f( size,  size/2, size);
 		glTexCoord2f(1, 0); glVertex3f( size, -size/2, size);
 
+		glNormal3f(-1.0,0,0);
 		glTexCoord2f(0, 0); glVertex3f(-size, -size/2, -size);
 		glTexCoord2f(0, 1); glVertex3f(-size,  size/2, -size);
 		glTexCoord2f(1, 1); glVertex3f(-size,  size/2,  size);
 		glTexCoord2f(1, 0); glVertex3f(-size, -size/2,  size);
 
+		glNormal3f(1.0,0,0);
 		glTexCoord2f(0, 0); glVertex3f(size, -size/2, -size);
 		glTexCoord2f(0, 1); glVertex3f(size,  size/2, -size);
 		glTexCoord2f(1, 1); glVertex3f(size,  size/2,  size);
 		glTexCoord2f(1, 0); glVertex3f(size, -size/2,  size);
 		
+		glNormal3f(0,1.0,0);
 		glTexCoord2f(0, 1); glVertex3f(-size, size/2,  size);
 		glTexCoord2f(0, 0); glVertex3f(-size, size/2, -size);
 		glTexCoord2f(1, 0); glVertex3f( size, size/2, -size);
@@ -274,13 +279,21 @@ void Tank::display(){
 		for(f = model->faces.begin(); f!= model->faces.end(); ++f){
 			for(int i=0;i<3;i++){
 				int index;
-				index = (*f).vert[i]-1;
+				//Normal coord
+				index = (*f).vnorm[i]-1;
+				if(index>-1){
+					Point p = model->normals[index];
+					//cout<<d.x<<" "<<d.y<<endl;
+					glNormal3f(p.x,p.y,p.z);
+				}
 				//Texture coord
+				index = (*f).vtext[i]-1;
 				if(index>-1){
 					Dot d = model->textures[index];
 					//cout<<d.x<<" "<<d.y<<endl;
 					glTexCoord2f(d.x,d.y);
 				}
+				index = (*f).vert[i]-1;
 				Point p = model->vertexs[index];
 				glVertex3f(p.x,p.y,p.z );
 			}	
@@ -379,8 +392,8 @@ Tank::~Tank(){
 
 //Path to textures
 const string texdir = "Textures/";
-string textureFileNames[numTEXT] = {texdir+"grass1.jpg",texdir+"block.jpg",
-						texdir+"block2.png",texdir+"tankPlayer.jpg"};
+string textureFileNames[numTEXT] = {texdir+"platform2.jpg",texdir+"block.jpg",
+						texdir+"block.png",texdir+"tankTex.jpg",texdir+"tankPlayer.jpg"};
 
 bool loadTextures() {
 	glGenTextures(numTEXT,texID);  // Obtener el Id textura 
@@ -447,7 +460,7 @@ bool loadTextures() {
 	}
 	return true;
 }
-
+/*
 void displayScenario(){
 	// Base
 	const int halfBase = 84, halfDepth = 72;	
@@ -461,4 +474,53 @@ void displayScenario(){
 		glTexCoord2f(2.4, 2.1);glVertex3f(halfBase,0.0,halfDepth);
 		glTexCoord2f(2.4, 0);glVertex3f(halfBase,0.0,-halfDepth);
 	glEnd();
+}
+*/
+
+Platform::Platform()
+{
+	level = 1;
+	model = nullptr;
+}
+
+Platform::Platform(std::string path)
+{
+	model = readFile(path);
+	level = 1;
+}
+
+Platform::~Platform()
+{
+	delete model;
+}
+
+void Platform::display(){
+	glBindTexture(GL_TEXTURE_2D, texID[0]); //platform-low
+	glPushMatrix();
+		vector<Face>::iterator f;
+		glBegin(GL_TRIANGLES);
+		for(f = model->faces.begin(); f!= model->faces.end(); ++f){
+			for(int i=0;i<3;i++){
+				int index;
+				//Normal coord
+				index = (*f).vnorm[i]-1;
+				if(index>-1){
+					Point p = model->normals[index];
+					//cout<<d.x<<" "<<d.y<<endl;
+					glNormal3f(p.x,p.y,p.z);
+				}
+				//Texture coord
+				index = (*f).vtext[i]-1;
+				if(index>-1){
+					Dot d = model->textures[index];
+					//cout<<d.x<<" "<<d.y<<endl;
+					glTexCoord2f(d.x,d.y);
+				}
+				index = (*f).vert[i]-1;
+				Point p = model->vertexs[index];
+				glVertex3f(p.x,p.y,p.z );
+			}	
+		}
+		glEnd();
+	glPopMatrix();
 }

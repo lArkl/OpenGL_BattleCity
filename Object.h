@@ -1,7 +1,7 @@
 #include "data.h"
 #include "Graph.h"
 const int maxAmmo = 5;
-	
+
 bool loadTextures();
 void displayScenario();
 
@@ -67,4 +67,13 @@ class Tank:public Object{
 	~Tank();
 };
 
-//extern Tank *player;
+class Platform{
+private:
+	int level;
+	Model *model;
+public:
+	Platform();
+	Platform(std::string);
+	void display();
+	~Platform();
+};

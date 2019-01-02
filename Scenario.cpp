@@ -14,6 +14,7 @@ const int numEnemies = 2;
 vector<Object*> SceneObjects;
 Tank *player;
 Tank *enemies[numEnemies];
+Platform *platform;
 
 vector<Object*>blocks;
 //Scenario size
@@ -21,26 +22,23 @@ const int halfBase = 84, halfDepth = 72;
 
 Graph Scenario(halfBase*halfDepth/16); //Num de nodos
 
+
+GLfloat mat_diffuse1[] = { 0.9, 0.9, 0.9, 1.0 };
+GLfloat mat_diffuse2[] = { 0.1, 0.1, 0.1, 1.0 };
 void Init( void )  {
     //LoadTextures();
 	glEnable(GL_TEXTURE_2D);
-	/*
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glColor3f( 0.0, 0.0, 0.0 );
-    gluOrtho2D( 0.0, 640.0, 0.0, 480.0 );
-	*/
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glClearDepth(1.0);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);	
-
-	/*
-	//Phong?
+	
+	//Phong?	
 	GLfloat ambient[] = { 0.9, 0.9, 0.9, 1.0 };
 	GLfloat diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat position[] = { 0.0, -8.0, 0.0, 0.0 };
+	GLfloat position[] = { 0.0, 8.0, 0.0, 0.0 };
 	GLfloat lmodel_ambient[] = { 0.4, 0.4, 0.4, 1.0 };
 	GLfloat local_view[] = { 0.0 };
 
@@ -53,23 +51,21 @@ void Init( void )  {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
-
 	//Phong materials
 	//GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-	GLfloat mat_ambient[] = { 0.9, 0.9, 0.9, 1.0 };
+	GLfloat mat_ambient[] = { 0.9, 0.1, 0.1, 1.0 };
 	//GLfloat mat_ambient_color[] = { 0.9, 0.2, 0.2, 1.0 };
-	GLfloat mat_diffuse[] = { 0.1, 0.1, 0.8, 1.0 };
+	//GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	//GLfloat no_shininess[] = { 0.0 };
 	GLfloat low_shininess[] = { 5.0 };
 	//GLfloat high_shininess[] = { 100.0 };
 	//GLfloat mat_emission[] = {0.1, 0.3, 0.2, 0.0};
-
 	//glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse1);
+	//glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
-	*/
+		
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -94,6 +90,9 @@ void Init( void )  {
 	std::string path = "Models/Tank/tankTex.obj";
 	Model *tankModel = readFile(path);
 	
+	path = "Models/Platforms/platformtex.obj";
+	platform = new Platform(path);
+
 	// Level1 Nodes
 	const int playerNode = 52;
 	const int enemyNode = 337;
@@ -122,7 +121,6 @@ float view_rotx=0.0, view_roty=0.0;//, view_rotz=0.0;
 //Tank player(0,0,0);
 
 void plotPoints(){//,Model model2){
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glPointSize(6.0);
 	glLineWidth(3.0);
 	
@@ -134,9 +132,8 @@ void plotPoints(){//,Model model2){
 	//glRotatef(view_rotz, 0.0, 0.0, 1.0);
     
 	glPushMatrix();
-	displayScenario();
-	
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	//displayScenario();
+	platform->display();
 	//glScalef(0.1,0.1,0.1);
 	//glColor3f(.0, 0.8, .1);
 	if(player->state==1) player->display();
@@ -149,8 +146,10 @@ void plotPoints(){//,Model model2){
 	for(int i=0;i<blocks.size();i++)
 		if(blocks[i]->state==1) blocks[i]->display();
 	//DrawBullets
+	//glColor3f(0, 0.1, .9);
 	//glColor3f(.4, 0.25, .8);
 	glBegin(GL_POINTS);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse2);
 		for(int i=0;i<maxAmmo;i++){
 			if(player->ammo[i]->state!=-1)
 				player->ammo[i]->display();
@@ -160,10 +159,10 @@ void plotPoints(){//,Model model2){
 				}
 			}
 		}
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse1);
 	glEnd();
-	
+	//glClearColor(1.0, 1.0, 1.0, 0.0);
 	//glColor3f(0.0, 0.1, 0.8);
-	//drawModel(model2);
 	glPopMatrix();
 	
 	glPopMatrix();
@@ -195,7 +194,7 @@ void special(int key, int x, int y){
 }
 
 void Display( void)  {
-	glClear( GL_COLOR_BUFFER_BIT );
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	//ifstream infile("Knuckle.obj");
 	plotPoints();//,model2);
 //	plotPoints(model2);
@@ -268,6 +267,8 @@ int main( int argc, char *argv[] )  {
 	// Ahora que tenemos todo definido, el loop  que responde  a eventos.
 	glutMainLoop( );
 	// Destroy everything
+	delete player->model;
+	delete platform;
 	for(int i = 0; i<SceneObjects.size(); i++)
 		delete SceneObjects[i];
 }
